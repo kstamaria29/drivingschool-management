@@ -12,8 +12,8 @@ function readErrorMessage(payload: unknown, status: number, fallback: string) {
     const record = payload as Record<string, unknown>;
     const error = typeof record.error === "string" ? record.error : null;
     const message = typeof record.message === "string" ? record.message : null;
-    if (error) return `${fallback} (${status}): ${error}`;
     if (message) return `${fallback} (${status}): ${message}`;
+    if (error) return `${fallback} (${status}): ${error}`;
   }
   return `${fallback} (${status})`;
 }
@@ -59,4 +59,3 @@ export async function sendAssessmentEmail(input: SendAssessmentEmailInput) {
 
   return payload;
 }
-

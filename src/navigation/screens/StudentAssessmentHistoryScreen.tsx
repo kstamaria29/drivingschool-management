@@ -1116,8 +1116,25 @@ export function StudentAssessmentHistoryScreen({ route }: Props) {
             width="auto"
             label={downloadingAssessmentId === assessment.id ? "Saving PDF..." : "Download PDF"}
             icon={Download}
-            disabled={downloadingAssessmentId === assessment.id || deletingAssessmentId === assessment.id}
+            disabled={
+              downloadingAssessmentId === assessment.id ||
+              emailingAssessmentId === assessment.id ||
+              deletingAssessmentId === assessment.id
+            }
             onPress={() => void onDownloadPdfPress(assessment)}
+          />
+
+          <AppButton
+            width="auto"
+            variant="success"
+            label={emailingAssessmentId === assessment.id ? "Sending..." : "Email student"}
+            icon={Mail}
+            disabled={
+              downloadingAssessmentId === assessment.id ||
+              emailingAssessmentId === assessment.id ||
+              deletingAssessmentId === assessment.id
+            }
+            onPress={() => onEmailStudentPress(assessment)}
           />
 
           <AppDivider />
@@ -1199,7 +1216,11 @@ export function StudentAssessmentHistoryScreen({ route }: Props) {
             variant="danger"
             label={deletingAssessmentId === assessment.id ? "Deleting..." : "Delete assessment"}
             icon={Trash2}
-            disabled={deletingAssessmentId === assessment.id || downloadingAssessmentId === assessment.id}
+            disabled={
+              deletingAssessmentId === assessment.id ||
+              downloadingAssessmentId === assessment.id ||
+              emailingAssessmentId === assessment.id
+            }
             onPress={() => onDeletePress(assessment)}
           />
         </AppStack>
@@ -1294,8 +1315,25 @@ export function StudentAssessmentHistoryScreen({ route }: Props) {
             width="auto"
             label={downloadingAssessmentId === assessment.id ? "Saving PDF..." : "Download PDF"}
             icon={Download}
-            disabled={downloadingAssessmentId === assessment.id || deletingAssessmentId === assessment.id}
+            disabled={
+              downloadingAssessmentId === assessment.id ||
+              emailingAssessmentId === assessment.id ||
+              deletingAssessmentId === assessment.id
+            }
             onPress={() => void onDownloadPdfPress(assessment)}
+          />
+
+          <AppButton
+            width="auto"
+            variant="success"
+            label={emailingAssessmentId === assessment.id ? "Sending..." : "Email student"}
+            icon={Mail}
+            disabled={
+              downloadingAssessmentId === assessment.id ||
+              emailingAssessmentId === assessment.id ||
+              deletingAssessmentId === assessment.id
+            }
+            onPress={() => onEmailStudentPress(assessment)}
           />
 
           <AppDivider />
@@ -1399,7 +1437,11 @@ export function StudentAssessmentHistoryScreen({ route }: Props) {
             variant="danger"
             label={deletingAssessmentId === assessment.id ? "Deleting..." : "Delete assessment"}
             icon={Trash2}
-            disabled={deletingAssessmentId === assessment.id || downloadingAssessmentId === assessment.id}
+            disabled={
+              deletingAssessmentId === assessment.id ||
+              downloadingAssessmentId === assessment.id ||
+              emailingAssessmentId === assessment.id
+            }
             onPress={() => onDeletePress(assessment)}
           />
         </AppStack>
@@ -1471,7 +1513,7 @@ export function StudentAssessmentHistoryScreen({ route }: Props) {
 
         <AppButton
           width="auto"
-          variant="secondary"
+          variant="success"
           label={emailingAssessmentId === assessment.id ? "Sending..." : "Email student"}
           icon={Mail}
           disabled={

@@ -1,4 +1,5 @@
 import { useCallback, useEffect, useMemo, useRef, useState, type PropsWithChildren } from "react";
+import { X } from "lucide-react-native";
 import {
   Animated,
   Easing,
@@ -12,6 +13,8 @@ import {
 } from "react-native";
 
 import { cn } from "../utils/cn";
+
+import { AppButton } from "./AppButton";
 
 type Props = PropsWithChildren<{
   visible: boolean;
@@ -205,6 +208,10 @@ export function AppBottomSheetModal({
             </View>
 
             <View>{children}</View>
+
+            <View className={cn(isCompact ? "mt-5" : "mt-6")}>
+              <AppButton label="Close" icon={X} onPress={onRequestClose} />
+            </View>
           </View>
         </Animated.View>
       </View>

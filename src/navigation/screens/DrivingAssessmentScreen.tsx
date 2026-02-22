@@ -19,6 +19,7 @@ import {
   ScrollView,
   View,
 } from "react-native";
+import * as FileSystem from "expo-file-system/legacy";
 import { ArrowLeft, FileDown, Play, RefreshCw, X } from "lucide-react-native";
 
 import { AppButton } from "../../components/AppButton";
@@ -30,7 +31,7 @@ import { AppText } from "../../components/AppText";
 import { Screen } from "../../components/Screen";
 import { SubmitAssessmentConfirmModal } from "../../components/SubmitAssessmentConfirmModal";
 import { useCurrentUser } from "../../features/auth/current-user";
-import { useCreateAssessmentMutation } from "../../features/assessments/queries";
+import { useCreateAssessmentMutation, useSendAssessmentEmailMutation } from "../../features/assessments/queries";
 import {
   drivingAssessmentCriteria,
   drivingAssessmentFeedbackOptions,
@@ -204,6 +205,7 @@ export function DrivingAssessmentScreen({ navigation, route }: Props) {
   const organizationSettingsQuery = useOrganizationSettingsQuery(profile.organization_id);
   const studentsQuery = useStudentsQuery({ archived: false });
   const createAssessment = useCreateAssessmentMutation();
+  const sendAssessmentEmailMutation = useSendAssessmentEmailMutation();
 
   const [stage, setStage] = useState<DrivingAssessmentStage>("details");
   const [selectedStudentId, setSelectedStudentId] = useState<string | null>(null);
@@ -512,6 +514,71 @@ export function DrivingAssessmentScreen({ navigation, route }: Props) {
     } catch (error) {
       Alert.alert(
         "Saved, but couldn't generate the PDF",
+        `The assessment was saved successfully.\n\n${toErrorMessage(error)}`,
+        [{ text: "Done", onPress: navigateAfterSubmit }],
+      );
+    }
+  }
+
+  async function submitAndEmailStudent(values: DrivingAssessmentFormValues) {
+    const student = selectedStudent;
+    if (!student) {
+      Alert.alert("Select a student", "Please select a student first.");
+      return;
+    }
+
+    const studentEmail = (student.email ?? "").trim();
+    if (!studentEmail) {
+      Alert.alert("Missing student email", "Add an email address for this student to email assessments.");
+      return;
+    }
+
+    const organizationEmail = (organizationQuery.data?.email ?? "").trim();
+    if (!organizationEmail) {
+      Alert.alert(
+        "Missing organization email",
+        "Set your organization email in Settings to email assessments.",
+      );
+      return;
+    }
+
+    const result = await saveAssessment(values);
+    if (!result) return;
+
+    try {
+      const fileName = `${student.first_name} ${student.last_name} ${dayjs(result.assessmentDateISO).format("DD-MM-YY")}`;
+      const saved = await exportDrivingAssessmentPdf({
+        assessmentId: result.assessment.id,
+        organizationName,
+        organizationLogoUrl,
+        fileName,
+        criteria: drivingAssessmentCriteria,
+        values: {
+          ...values,
+          totalScorePercent: result.score.percentAnswered,
+          totalScoreRaw: result.score.totalRaw,
+          feedbackSummary: result.feedbackSummary,
+        },
+      });
+
+      const pdfBase64 = await FileSystem.readAsStringAsync(saved.uri, {
+        encoding: FileSystem.EncodingType.Base64,
+      });
+
+      await sendAssessmentEmailMutation.mutateAsync({
+        assessmentId: result.assessment.id,
+        fileName: `${fileName}.pdf`,
+        pdfBase64,
+      });
+
+      Alert.alert(
+        "Submitted",
+        `Assessment saved and emailed to ${studentEmail} and ${organizationEmail}.`,
+        [{ text: "Done", onPress: navigateAfterSubmit }],
+      );
+    } catch (error) {
+      Alert.alert(
+        "Saved, but couldn't send email",
         `The assessment was saved successfully.\n\n${toErrorMessage(error)}`,
         [{ text: "Done", onPress: navigateAfterSubmit }],
       );
@@ -827,7 +894,7 @@ export function DrivingAssessmentScreen({ navigation, route }: Props) {
       <SubmitAssessmentConfirmModal
         visible={submitConfirmVisible}
         title="Submit assessment?"
-        message="Submit will save the assessment. Submit and Generate PDF will also export a PDF."
+        message="Submit will save the assessment. Submit and Generate PDF will also export a PDF. Submit and Email student will send the PDF to the student and your organization email."
         disabled={saving}
         onCancel={closeSubmitConfirmModal}
         onSubmit={() => {
@@ -841,6 +908,12 @@ export function DrivingAssessmentScreen({ navigation, route }: Props) {
           closeSubmitConfirmModal();
           if (!values) return;
           void submitAndGeneratePdf(values);
+        }}
+        onSubmitAndEmailStudent={() => {
+          const values = pendingSubmitValues;
+          closeSubmitConfirmModal();
+          if (!values) return;
+          void submitAndEmailStudent(values);
         }}
       />
 

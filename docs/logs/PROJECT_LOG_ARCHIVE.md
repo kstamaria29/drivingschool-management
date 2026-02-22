@@ -1655,3 +1655,42 @@
   - Reduced whitespace with a two-column layout: title + enable on the left, sound/vibration controls right-aligned on the right.
 
 ---
+
+- **Date:** 2026-02-21 (Pacific/Auckland)
+- **Task:** Notifications settings simplify toggles
+- **Summary:**
+  - Simplified notification category settings to On/Off segmented controls only (removed Sound/Vibration UI and defaulted both to On when enabled).
+  - Disabling Downloads/Student reminders now prevents local notifications and clears scheduled reminder alerts on the device.
+
+---
+
+- **Date:** 2026-02-21 (Pacific/Auckland)
+- **Task:** Notifications screen spacing + push button polish
+- **Summary:**
+  - Removed the extra gap between section titles and captions and ensured Upcoming lessons defaults to a 1-hour notify offset.
+  - Made the push "Register this device" button green when this device is not registered and disabled it when already registered.
+
+---
+
+- **Date:** 2026-02-21 (Pacific/Auckland)
+- **Task:** Notifications test buttons for all roles
+- **Summary:**
+  - Made "Send test notification" buttons visible for owners and instructors (not admin-only).
+
+---
+
+- **Date:** 2026-02-21 (Pacific/Auckland)
+- **Task:** Restricted mock test feedback + task errors
+- **Summary:**
+  - Replaced per-task notes with Critical/Immediate error fields (multi-select suggestions) and saved them per task.
+  - Replaced global Critical/Immediate blocks with General feedback/Improvement needed and updated history + PDF output.
+
+---
+
+- **Date:** 2026-02-21 (Pacific/Auckland)
+- **Task:** Restricted mock test repetition errors + modal polish
+- **Summary:**
+  - Saved task Critical/Immediate errors per repetition (snapshotted on Record Repetition) and updated History + PDF to render Repetition #N sections.
+  - Redesigned the task modal (90% height, full-width card) and improved suggestion UX (tap outside to hide, auto-hide on record).
+
+---

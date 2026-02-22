@@ -1,6 +1,45 @@
 # PROJECT_LOG.md
 
 - **Date:** 2026-02-22 (Pacific/Auckland)
+- **Task:** Navbar hamburger buttons
+- **Summary:**
+  - Updated header button logic so stack root screens show the hamburger menu even when navigation can go back.
+  - Applied this so Students/Lessons/Assessments/Sessions/Google Maps/Settings show the hamburger instead of a back button.
+
+---
+
+- **Date:** 2026-02-22 (Pacific/Auckland)
+- **Task:** Modal polish
+- **Summary:**
+  - Updated the submit confirmation modal so "Submit and Email student" uses green text styling (matching "Submit and Generate PDF").
+  - Added a blue Close button with icon to the bottom sheet modal footer (outside the scrollable content).
+
+---
+
+- **Date:** 2026-02-22 (Pacific/Auckland)
+- **Task:** Submit and email student
+- **Summary:**
+  - Added a "Submit and Email student" option to the submit confirmation modal for all 3 assessments.
+  - Implemented submit + PDF generation + email sending via the `send-assessment-email` Edge Function.
+
+---
+
+- **Date:** 2026-02-22 (Pacific/Auckland)
+- **Task:** Email student button color
+- **Summary:**
+  - Added a green `success` button variant and applied it to "Email student" across all assessment history views.
+
+---
+
+- **Date:** 2026-02-22 (Pacific/Auckland)
+- **Task:** Email student for mock tests
+- **Summary:**
+  - Added the "Email student" action to Restricted and Full mock test history detail views.
+  - Disabled Download/Email/Delete actions consistently while emailing.
+
+---
+
+- **Date:** 2026-02-22 (Pacific/Auckland)
 - **Task:** Assessment email error messaging
 - **Summary:**
   - Surfaced Resend error messages in the Edge Function response for easier diagnosis.
@@ -115,42 +154,3 @@
 - **Summary:**
   - Auto-opened suggestions when tapping into task errors and feedback textboxes, and renamed Improvement needed to Improvement(s) needed across UI/history/PDF.
   - Adjusted Restricted PDF layout so feedback stays on page 1 and Stage 1/2 start on page 2.
-
----
-
-- **Date:** 2026-02-21 (Pacific/Auckland)
-- **Task:** Restricted mock test repetition errors + modal polish
-- **Summary:**
-  - Saved task Critical/Immediate errors per repetition (snapshotted on Record Repetition) and updated History + PDF to render Repetition #N sections.
-  - Redesigned the task modal (90% height, full-width card) and improved suggestion UX (tap outside to hide, auto-hide on record).
-
----
-
-- **Date:** 2026-02-21 (Pacific/Auckland)
-- **Task:** Restricted mock test feedback + task errors
-- **Summary:**
-  - Replaced per-task notes with Critical/Immediate error fields (multi-select suggestions) and saved them per task.
-  - Replaced global Critical/Immediate blocks with General feedback/Improvement needed and updated history + PDF output.
-
----
-
-- **Date:** 2026-02-21 (Pacific/Auckland)
-- **Task:** Notifications test buttons for all roles
-- **Summary:**
-  - Made â€œSend test notificationâ€ buttons visible for owners and instructors (not admin-only).
-
----
-
-- **Date:** 2026-02-21 (Pacific/Auckland)
-- **Task:** Notifications screen spacing + push button polish
-- **Summary:**
-  - Removed the extra gap between section titles and captions and ensured Upcoming lessons defaults to a 1-hour notify offset.
-  - Made the push "Register this device" button green when this device is not registered and disabled it when already registered.
-
----
-
-- **Date:** 2026-02-21 (Pacific/Auckland)
-- **Task:** Notifications settings simplify toggles
-- **Summary:**
-  - Simplified notification category settings to On/Off segmented controls only (removed Sound/Vibration UI and defaulted both to On when enabled).
-  - Disabling Downloads/Student reminders now prevents local notifications and clears scheduled reminder alerts on the device.

@@ -82,6 +82,10 @@ Scheduling:
 
 Emails an assessment PDF to the student and BCCs a copy to the organization's email address.
 
+Setup guide:
+
+- `docs/email-student-setup.md`
+
 Deploy (requires Supabase CLI):
 
 - `supabase functions deploy send-assessment-email --no-verify-jwt`
@@ -92,7 +96,7 @@ Deploy (requires Supabase CLI):
 
 Notes:
 
-- Sender is `organizations.email` (set this in-app via Settings â†’ Organization).
+- Sender is `organizations.email` (set this in-app via Settings -> Organization).
 - The function uses Resend (the sender domain must be verified in Resend; personal inbox domains like `gmail.com` won't work as a `From` address).
 
 ## Storage buckets + policies
