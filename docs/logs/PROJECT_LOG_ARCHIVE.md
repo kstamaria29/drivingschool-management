@@ -1694,3 +1694,11 @@
   - Redesigned the task modal (90% height, full-width card) and improved suggestion UX (tap outside to hide, auto-hide on record).
 
 ---
+
+- **Date:** 2026-02-21 (Pacific/Auckland)
+- **Task:** Restricted mock test PDF page break + suggestion auto-open
+- **Summary:**
+  - Auto-opened suggestions when tapping into task errors and feedback textboxes, and renamed Improvement needed to Improvement(s) needed across UI/history/PDF.
+  - Adjusted Restricted PDF layout so feedback stays on page 1 and Stage 1/2 start on page 2.
+
+---

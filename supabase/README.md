@@ -76,7 +76,39 @@ Deploy (requires Supabase CLI):
 
 Scheduling:
 
-- Create a scheduled job in Supabase Dashboard to call `notifications-cron` (recommended every 5 minutes).
+- Enable `pg_cron` (Dashboard -> `Integrations` -> `Cron` -> `Enable pg_cron`). The extension must be installed in the `pg_catalog` schema.
+- Enable `pg_net` (Dashboard -> `Database` -> `Extensions` -> enable `pg_net`). `pg_net` is required to call Edge Functions from cron via HTTP.
+
+Then schedule the Edge Function to run every 5 minutes:
+
+- Option A (Dashboard UI): `Integrations` -> `Cron` -> `Jobs` -> `Create job`
+  - Schedule: `*/5 * * * *`
+  - Type: Edge Function
+  - Function: `notifications-cron`
+- Option B (SQL Editor): create the job via SQL (replace `<PROJECT_REF>` with the `xxxxx` in `https://xxxxx.supabase.co`):
+
+```sql
+create extension if not exists pg_net;
+
+select cron.schedule(
+  'notifications-cron-every-5-min',
+  '*/5 * * * *',
+  $$
+  select net.http_post(
+    url := 'https://<PROJECT_REF>.supabase.co/functions/v1/notifications-cron',
+    headers := jsonb_build_object('Content-Type','application/json'),
+    body := '{}'::jsonb
+  );
+  $$
+);
+```
+
+Verify runs (SQL Editor):
+
+```sql
+select * from cron.job;
+select * from cron.job_run_details order by start_time desc limit 20;
+```
 
 ### `send-assessment-email` (authenticated users)
 

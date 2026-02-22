@@ -1,5 +1,13 @@
 # PROJECT_LOG.md
 
+- **Date:** 2026-02-23 (Pacific/Auckland)
+- **Task:** Supabase cron setup docs
+- **Summary:**
+  - Documented enabling `pg_cron` + `pg_net` for scheduled Edge Function delivery.
+  - Added sample SQL for scheduling `notifications-cron` every 5 minutes and verifying runs.
+
+---
+
 - **Date:** 2026-02-22 (Pacific/Auckland)
 - **Task:** Navbar hamburger buttons
 - **Summary:**
@@ -146,11 +154,3 @@
 - **Task:** Restricted history feedback ordering
 - **Summary:**
   - Moved General feedback + Improvement(s) needed cards to sit directly under Overview for restricted mock tests.
-
----
-
-- **Date:** 2026-02-21 (Pacific/Auckland)
-- **Task:** Restricted mock test PDF page break + suggestion auto-open
-- **Summary:**
-  - Auto-opened suggestions when tapping into task errors and feedback textboxes, and renamed Improvement needed to Improvement(s) needed across UI/history/PDF.
-  - Adjusted Restricted PDF layout so feedback stays on page 1 and Stage 1/2 start on page 2.
