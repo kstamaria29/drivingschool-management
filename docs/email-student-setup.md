@@ -78,10 +78,18 @@ Supported assessments:
 - Mock Test - Restricted Licence
 - Mock Test - Full License
 
+Option A: Email from the assessment history
+
 1. Open Students -> select a student.
 2. Open Assessment History.
 3. Select an assessment record.
 4. Tap **Email student** -> confirm.
+
+Option B: Email immediately on submit
+
+1. Complete an assessment as normal.
+2. Tap **Submit**.
+3. In the confirmation modal, choose **Submit and Email student**.
 
 Expected behavior:
 

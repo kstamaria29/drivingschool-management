@@ -1126,7 +1126,7 @@ export function StudentAssessmentHistoryScreen({ route }: Props) {
 
           <AppButton
             width="auto"
-            variant="secondary"
+            variant="success"
             label={emailingAssessmentId === assessment.id ? "Sending..." : "Email student"}
             icon={Mail}
             disabled={
@@ -1325,7 +1325,7 @@ export function StudentAssessmentHistoryScreen({ route }: Props) {
 
           <AppButton
             width="auto"
-            variant="secondary"
+            variant="success"
             label={emailingAssessmentId === assessment.id ? "Sending..." : "Email student"}
             icon={Mail}
             disabled={
@@ -1513,7 +1513,7 @@ export function StudentAssessmentHistoryScreen({ route }: Props) {
 
         <AppButton
           width="auto"
-          variant="secondary"
+          variant="success"
           label={emailingAssessmentId === assessment.id ? "Sending..." : "Email student"}
           icon={Mail}
           disabled={

@@ -151,6 +151,7 @@ export const theme = {
     variant: {
       primary: "bg-primary border-primary dark:bg-primaryDark dark:border-primaryDark",
       secondary: "bg-card border-border dark:bg-cardDark dark:border-borderDark",
+      success: "bg-green-600 border-green-600 dark:bg-green-500 dark:border-green-500",
       danger: "bg-danger border-danger dark:bg-dangerDark dark:border-dangerDark",
       ghost: "bg-transparent border-0 shadow-none",
     },
@@ -158,6 +159,7 @@ export const theme = {
     labelVariant: {
       primary: "text-primaryForeground",
       secondary: "text-foreground dark:text-foregroundDark",
+      success: "text-primaryForeground",
       danger: "text-primaryForeground",
       ghost: "text-primary dark:text-primaryDark",
     },

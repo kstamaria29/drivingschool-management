@@ -15,6 +15,7 @@ type Props = {
   onCancel: () => void;
   onSubmit: () => void;
   onSubmitAndGeneratePdf: () => void;
+  onSubmitAndEmailStudent: () => void;
 };
 
 const TABLET_MIN_WIDTH = 600;
@@ -27,6 +28,7 @@ export function SubmitAssessmentConfirmModal({
   onCancel,
   onSubmit,
   onSubmitAndGeneratePdf,
+  onSubmitAndEmailStudent,
 }: Props) {
   const { width, height } = useWindowDimensions();
   const isCompact = Math.min(width, height) < TABLET_MIN_WIDTH;
@@ -56,6 +58,13 @@ export function SubmitAssessmentConfirmModal({
                 disabled={disabled}
                 labelClassName="!text-green-800 dark:!text-green-200"
                 onPress={onSubmitAndGeneratePdf}
+              />
+              <AppButton
+                variant="secondary"
+                label="Submit and Email student"
+                disabled={disabled}
+                labelClassName="!text-green-800 dark:!text-green-200"
+                onPress={onSubmitAndEmailStudent}
               />
               <AppButton variant="ghost" label="Cancel" disabled={disabled} onPress={onCancel} />
             </AppStack>

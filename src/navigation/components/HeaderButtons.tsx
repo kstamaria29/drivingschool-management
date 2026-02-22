@@ -46,6 +46,11 @@ export function HeaderLeftMenuWithBack({ showBack = true }: HeaderLeftMenuWithBa
   const { isSidebar, isTablet } = useNavigationLayout();
   const { colorScheme } = useColorScheme();
   const canGoBack = navigation.canGoBack();
+  const navigationState = navigation.getState();
+  const isStackRoot =
+    navigationState?.type === "stack"
+      ? navigationState.index === 0
+      : navigationState?.index === 0;
   const isTabletPortrait = isTablet && !isSidebar;
   const buttonSize = isTabletPortrait ? 48 : 44;
   const iconSize = isTabletPortrait ? 26 : 24;
@@ -61,8 +66,8 @@ export function HeaderLeftMenuWithBack({ showBack = true }: HeaderLeftMenuWithBa
     parentNavigation?.navigate("Home", { screen: "HomeDashboard" });
   }
 
-  const showHamburger = !isSidebar && !canGoBack;
-  const showBackButton = showBack && canGoBack;
+  const showHamburger = !isSidebar && isStackRoot;
+  const showBackButton = showBack && !isStackRoot && canGoBack;
 
   if (!showHamburger && !showBackButton) return null;
 

@@ -8,7 +8,7 @@ import { cn } from "../utils/cn";
 
 import { AppText } from "./AppText";
 
-type AppButtonVariant = "primary" | "secondary" | "danger" | "ghost";
+type AppButtonVariant = "primary" | "secondary" | "success" | "danger" | "ghost";
 type AppButtonSize = "md" | "lg" | "icon";
 type AppButtonWidth = "full" | "auto";
 type AppButtonBadgePosition = "icon" | "label-top-right";
@@ -55,7 +55,7 @@ export function AppButton({
   const resolvedIconSize = iconSize ?? (size === "lg" ? 20 : 18);
   const resolvedIconColor =
     iconColor ??
-    (variant === "primary" || variant === "danger"
+    (variant === "primary" || variant === "danger" || variant === "success"
       ? theme.colors.primaryForeground
       : variant === "secondary"
         ? colorScheme === "dark"
