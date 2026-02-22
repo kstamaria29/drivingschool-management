@@ -132,33 +132,30 @@ export function HomeScreen({ navigation }: Props) {
     </View>
   );
 
+  const quickActionButtonClassName = `flex-1 ${isCompact ? "min-w-40" : "min-w-48"}`;
   const quickActions = (
     <AppStack gap="sm">
       <View className="flex-row flex-wrap gap-2">
         <AppButton
           width="auto"
-          className={`flex-1 ${isCompact ? "min-w-40" : "min-w-48"}`}
+          className={quickActionButtonClassName}
           label="Students"
           icon={Users}
           onPress={() => parent?.navigate("Students")}
         />
         <AppButton
           width="auto"
-          className={`flex-1 ${isCompact ? "min-w-40" : "min-w-48"}`}
+          className={quickActionButtonClassName}
           variant="secondary"
-          label="Sessions"
-          icon={Clock3}
-          onPress={() =>
-            parent?.navigate("Sessions", {
-              screen: "SessionsList",
-            })
-          }
+          label="Lessons"
+          icon={BookOpen}
+          onPress={() => parent?.navigate("Lessons")}
         />
       </View>
       <View className="flex-row flex-wrap gap-2">
         <AppButton
           width="auto"
-          className={`flex-1 ${isCompact ? "min-w-40" : "min-w-48"}`}
+          className={quickActionButtonClassName}
           variant="secondary"
           label="Assessments"
           icon={ClipboardList}
@@ -170,15 +167,22 @@ export function HomeScreen({ navigation }: Props) {
         />
         <AppButton
           width="auto"
-          className={`flex-1 ${isCompact ? "min-w-40" : "min-w-48"}`}
+          className={quickActionButtonClassName}
           variant="secondary"
-          label="Lessons"
-          icon={BookOpen}
-          onPress={() => parent?.navigate("Lessons")}
+          label="Sessions"
+          icon={Clock3}
+          onPress={() =>
+            parent?.navigate("Sessions", {
+              screen: "SessionsList",
+            })
+          }
         />
+      </View>
+      <View className="flex-row flex-wrap gap-2">
+        <View className={quickActionButtonClassName} />
         <AppButton
           width="auto"
-          className={`flex-1 ${isCompact ? "min-w-40" : "min-w-48"}`}
+          className={quickActionButtonClassName}
           variant="secondary"
           label="Google Maps"
           icon={MapIcon}

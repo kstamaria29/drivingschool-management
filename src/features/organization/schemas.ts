@@ -9,3 +9,17 @@ export const organizationNameSchema = z.object({
 });
 
 export type OrganizationNameFormValues = z.infer<typeof organizationNameSchema>;
+
+const emailSchema = z.string().email("Enter a valid email");
+
+export const organizationEmailSchema = z.object({
+  organizationEmail: z
+    .string()
+    .trim()
+    .max(120, "Use 120 characters or fewer")
+    .refine((value) => value === "" || emailSchema.safeParse(value).success, {
+      message: "Enter a valid email",
+    }),
+});
+
+export type OrganizationEmailFormValues = z.infer<typeof organizationEmailSchema>;

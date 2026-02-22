@@ -8,6 +8,7 @@ import { getNativeStackScreenOptions } from "./navigationTheme";
 import { AddInstructorScreen } from "./screens/AddInstructorScreen";
 import { ChangePasswordScreen } from "./screens/ChangePasswordScreen";
 import { EditDetailsScreen } from "./screens/EditDetailsScreen";
+import { EditOrganizationEmailScreen } from "./screens/EditOrganizationEmailScreen";
 import { EditOrganizationNameScreen } from "./screens/EditOrganizationNameScreen";
 import { EditRoleDisplayScreen } from "./screens/EditRoleDisplayScreen";
 import { MemberProfileScreen } from "./screens/MemberProfileScreen";
@@ -23,6 +24,7 @@ export type SettingsStackParamList = {
   EditDetails: undefined;
   ChangePassword: undefined;
   EditOrganizationName: undefined;
+  EditOrganizationEmail: undefined;
   ViewMembers: undefined;
   MemberProfile: { memberId: string };
   EditRoleDisplay: undefined;
@@ -75,6 +77,11 @@ export function SettingsStackNavigator() {
       <Stack.Screen
         name="EditOrganizationName"
         component={EditOrganizationNameScreen}
+        options={{ headerTitle: "" }}
+      />
+      <Stack.Screen
+        name="EditOrganizationEmail"
+        component={EditOrganizationEmailScreen}
         options={{ headerTitle: "" }}
       />
       <Stack.Screen

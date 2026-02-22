@@ -3,6 +3,7 @@ import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import {
   getOrganization,
   getOrganizationSettings,
+  updateOrganizationEmail,
   updateOrganizationName,
   updateOrganizationLogoUrl,
   uploadOrganizationLogo,
@@ -50,6 +51,17 @@ export function useUpdateOrganizationNameMutation(organizationId: string) {
 
   return useMutation({
     mutationFn: (name: string) => updateOrganizationName(organizationId, name),
+    onSuccess: async () => {
+      await queryClient.invalidateQueries({ queryKey: organizationKeys.org(organizationId) });
+    },
+  });
+}
+
+export function useUpdateOrganizationEmailMutation(organizationId: string) {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: (email: string | null) => updateOrganizationEmail(organizationId, email),
     onSuccess: async () => {
       await queryClient.invalidateQueries({ queryKey: organizationKeys.org(organizationId) });
     },

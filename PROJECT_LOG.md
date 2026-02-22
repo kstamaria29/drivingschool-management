@@ -1,6 +1,30 @@
 # PROJECT_LOG.md
 
 - **Date:** 2026-02-22 (Pacific/Auckland)
+- **Task:** Assessment email error messaging
+- **Summary:**
+  - Surfaced Resend error messages in the Edge Function response for easier diagnosis.
+  - Logged provider failures in Supabase Edge Function logs.
+
+---
+
+- **Date:** 2026-02-22 (Pacific/Auckland)
+- **Task:** Home buttons + email assessment PDFs
+- **Summary:**
+  - Rearranged Home quick actions into a 3x2 grid (Students/Lessons, Assessments/Sessions, Google Maps bottom-right).
+  - Added an "Email student" action in Assessment History to email PDFs to the student and the organization.
+
+---
+
+- **Date:** 2026-02-22 (Pacific/Auckland)
+- **Task:** Organization email setting
+- **Summary:**
+  - Added organization email field + edit screen in Settings.
+  - Displayed the org email in the Organization block and added a "Change organization email" action.
+
+---
+
+- **Date:** 2026-02-22 (Pacific/Auckland)
 - **Task:** Restricted PDF stage pagination
 - **Summary:**
   - Hid Stage 2 section/details in the PDF when Stage 2 was not enabled.
@@ -130,27 +154,3 @@
 - **Summary:**
   - Simplified notification category settings to On/Off segmented controls only (removed Sound/Vibration UI and defaulted both to On when enabled).
   - Disabling Downloads/Student reminders now prevents local notifications and clears scheduled reminder alerts on the device.
-
----
-
-- **Date:** 2026-02-21 (Pacific/Auckland)
-- **Task:** Notifications screen compact toggles
-- **Summary:**
-  - Switched notification settings to larger blue/grey toggle switches and combined section title, enable, sound, and vibration controls into a single row.
-  - Reduced whitespace with a two-column layout: title + enable on the left, sound/vibration controls right-aligned on the right.
-
----
-
-- **Date:** 2026-02-21 (Pacific/Auckland)
-- **Task:** Notifications screen toggle switches
-- **Summary:**
-  - Replaced On/Off segmented controls with right-aligned toggle switches and slightly larger labels.
-  - Restricted "Send test notification" buttons to `admin` users only.
-
----
-
-- **Date:** 2026-02-21 (Pacific/Auckland)
-- **Task:** Android FCM setup for push notifications
-- **Summary:**
-  - Added Expo Android `googleServicesFile` config so Android devices can register for push notifications.
-  - Documented the required Firebase/EAS FCM credential setup steps for Android push delivery.

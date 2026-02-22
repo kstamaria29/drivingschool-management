@@ -1631,3 +1631,27 @@
   - Added upcoming-lesson offsets + daily digest settings, plus Supabase tables/Edge Functions for scheduled push delivery.
 
 ---
+
+- **Date:** 2026-02-21 (Pacific/Auckland)
+- **Task:** Android FCM setup for push notifications
+- **Summary:**
+  - Added Expo Android `googleServicesFile` config so Android devices can register for push notifications.
+  - Documented the required Firebase/EAS FCM credential setup steps for Android push delivery.
+
+---
+
+- **Date:** 2026-02-21 (Pacific/Auckland)
+- **Task:** Notifications screen toggle switches
+- **Summary:**
+  - Replaced On/Off segmented controls with right-aligned toggle switches and slightly larger labels.
+  - Restricted "Send test notification" buttons to `admin` users only.
+
+---
+
+- **Date:** 2026-02-21 (Pacific/Auckland)
+- **Task:** Notifications screen compact toggles
+- **Summary:**
+  - Switched notification settings to larger blue/grey toggle switches and combined section title, enable, sound, and vibration controls into a single row.
+  - Reduced whitespace with a two-column layout: title + enable on the left, sound/vibration controls right-aligned on the right.
+
+---

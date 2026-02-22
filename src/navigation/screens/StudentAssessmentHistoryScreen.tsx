@@ -2,7 +2,8 @@ import dayjs from "dayjs";
 import type { NativeStackScreenProps } from "@react-navigation/native-stack";
 import { useEffect, useMemo, useState, type ReactElement } from "react";
 import { ActivityIndicator, Alert, Platform, Pressable, ScrollView, View } from "react-native";
-import { ClipboardList, Download, RefreshCw, Trash2 } from "lucide-react-native";
+import * as FileSystem from "expo-file-system/legacy";
+import { ClipboardList, Download, Mail, RefreshCw, Trash2 } from "lucide-react-native";
 
 import { AppButton } from "../../components/AppButton";
 import { AppCard } from "../../components/AppCard";
@@ -12,7 +13,11 @@ import { AppText } from "../../components/AppText";
 import { Screen } from "../../components/Screen";
 import { useCurrentUser } from "../../features/auth/current-user";
 import { type Assessment } from "../../features/assessments/api";
-import { useAssessmentsQuery, useDeleteAssessmentMutation } from "../../features/assessments/queries";
+import {
+  useAssessmentsQuery,
+  useDeleteAssessmentMutation,
+  useSendAssessmentEmailMutation,
+} from "../../features/assessments/queries";
 import { ensureAndroidDownloadsDirectoryUri } from "../../features/assessments/android-downloads";
 import {
   drivingAssessmentCriteria,
@@ -185,6 +190,7 @@ export function StudentAssessmentHistoryScreen({ route }: Props) {
   );
   const [selectedAssessmentId, setSelectedAssessmentId] = useState<string | null>(null);
   const [downloadingAssessmentId, setDownloadingAssessmentId] = useState<string | null>(null);
+  const [emailingAssessmentId, setEmailingAssessmentId] = useState<string | null>(null);
   const [deletingAssessmentId, setDeletingAssessmentId] = useState<string | null>(null);
 
   const studentQuery = useStudentQuery(studentId);
@@ -193,6 +199,7 @@ export function StudentAssessmentHistoryScreen({ route }: Props) {
   const allAssessmentsQuery = useAssessmentsQuery({ studentId });
   const assessmentsQuery = useAssessmentsQuery({ studentId, assessmentType });
   const deleteAssessmentMutation = useDeleteAssessmentMutation();
+  const sendAssessmentEmailMutation = useSendAssessmentEmailMutation();
 
   const twoPane = isTablet && isLandscape;
 
@@ -421,6 +428,221 @@ export function StudentAssessmentHistoryScreen({ route }: Props) {
     } finally {
       setDownloadingAssessmentId(null);
     }
+  }
+
+  async function sendAssessmentEmail(assessment: Assessment) {
+    const student = studentQuery.data ?? null;
+    if (!student) {
+      Alert.alert("Couldn't load student", "Please try again once the student details are loaded.");
+      return;
+    }
+
+    const studentEmail = (student.email ?? "").trim();
+    if (!studentEmail) {
+      Alert.alert("Missing student email", "Add an email address for this student to email assessments.");
+      return;
+    }
+
+    const organizationEmail = (organizationQuery.data?.email ?? "").trim();
+    if (!organizationEmail) {
+      Alert.alert(
+        "Missing organization email",
+        "Set your organization email in Settings to email assessments.",
+      );
+      return;
+    }
+
+    const organizationName = organizationQuery.data?.name ?? "Driving School";
+    const organizationLogoUrl = organizationSettingsQuery.data?.logo_url ?? null;
+
+    setEmailingAssessmentId(assessment.id);
+    try {
+      if (assessment.assessment_type === "driving_assessment") {
+        const parsed = drivingAssessmentStoredDataSchema.safeParse(assessment.form_data);
+        if (!parsed.success) {
+          Alert.alert(
+            "Couldn't send email",
+            "This assessment is missing required data. Try creating a new assessment.",
+          );
+          return;
+        }
+
+        const values = parsed.data;
+        const score = calculateDrivingAssessmentScore(values.scores);
+        const totalPercent = assessment.total_score ?? score.percentAnswered;
+        const feedbackSummary =
+          values.feedbackSummary?.trim() ||
+          (totalPercent == null ? "" : generateDrivingAssessmentFeedbackSummary(totalPercent));
+
+        const assessmentDateISO = parseDateInputToISODate(values.date) ?? values.date;
+        const issueDateISO = values.issueDate ? parseDateInputToISODate(values.issueDate) : null;
+        const expiryDateISO = values.expiryDate ? parseDateInputToISODate(values.expiryDate) : null;
+        const fileName = `${student.first_name} ${student.last_name} ${dayjs(assessmentDateISO).format("DD-MM-YY")}`;
+
+        const saved = await exportDrivingAssessmentPdf({
+          assessmentId: assessment.id,
+          organizationName,
+          organizationLogoUrl,
+          fileName,
+          criteria: drivingAssessmentCriteria,
+          values: {
+            ...values,
+            date: dayjs(assessmentDateISO).format(DISPLAY_DATE_FORMAT),
+            issueDate: issueDateISO
+              ? dayjs(issueDateISO).format(DISPLAY_DATE_FORMAT)
+              : values.issueDate,
+            expiryDate: expiryDateISO
+              ? dayjs(expiryDateISO).format(DISPLAY_DATE_FORMAT)
+              : values.expiryDate,
+            totalScorePercent: totalPercent,
+            totalScoreRaw: score.totalRaw,
+            feedbackSummary,
+          },
+        });
+
+        const pdfBase64 = await FileSystem.readAsStringAsync(saved.uri, {
+          encoding: FileSystem.EncodingType.Base64,
+        });
+
+        await sendAssessmentEmailMutation.mutateAsync({
+          assessmentId: assessment.id,
+          fileName: `${fileName}.pdf`,
+          pdfBase64,
+        });
+
+        Alert.alert(
+          "Email sent",
+          `Sent to ${studentEmail} and ${organizationEmail}.`,
+          Platform.OS === "ios" ? undefined : [{ text: "OK" }],
+        );
+
+        return;
+      }
+
+      if (assessment.assessment_type === "second_assessment") {
+        const parsed = restrictedMockTestStoredDataSchema.safeParse(assessment.form_data);
+        if (!parsed.success) {
+          Alert.alert(
+            "Couldn't send email",
+            "This assessment is missing required data. Try creating a new assessment.",
+          );
+          return;
+        }
+
+        const values = parsed.data;
+        const assessmentDateISO =
+          parseDateInputToISODate(values.date) ?? assessment.assessment_date ?? assessment.created_at;
+        const fileName = `Mock Test Restricted ${student.first_name} ${student.last_name} ${dayjs(assessmentDateISO).format("DD-MM-YY")}`;
+
+        const saved = await exportRestrictedMockTestPdf({
+          assessmentId: assessment.id,
+          organizationName,
+          organizationLogoUrl,
+          fileName,
+          values,
+        });
+
+        const pdfBase64 = await FileSystem.readAsStringAsync(saved.uri, {
+          encoding: FileSystem.EncodingType.Base64,
+        });
+
+        await sendAssessmentEmailMutation.mutateAsync({
+          assessmentId: assessment.id,
+          fileName: `${fileName}.pdf`,
+          pdfBase64,
+        });
+
+        Alert.alert(
+          "Email sent",
+          `Sent to ${studentEmail} and ${organizationEmail}.`,
+          Platform.OS === "ios" ? undefined : [{ text: "OK" }],
+        );
+
+        return;
+      }
+
+      if (assessment.assessment_type === "third_assessment") {
+        const parsed = fullLicenseMockTestStoredDataSchema.safeParse(assessment.form_data);
+        if (!parsed.success) {
+          Alert.alert(
+            "Couldn't send email",
+            "This assessment is missing required data. Try creating a new assessment.",
+          );
+          return;
+        }
+
+        const values = parsed.data;
+        const assessmentDateISO =
+          parseDateInputToISODate(values.date) ?? assessment.assessment_date ?? assessment.created_at;
+        const fileName = `Mock Test Full License ${student.first_name} ${student.last_name} ${dayjs(
+          assessmentDateISO,
+        ).format("DD-MM-YY")}`;
+
+        const saved = await exportFullLicenseMockTestPdf({
+          assessmentId: assessment.id,
+          organizationName,
+          organizationLogoUrl,
+          fileName,
+          values,
+        });
+
+        const pdfBase64 = await FileSystem.readAsStringAsync(saved.uri, {
+          encoding: FileSystem.EncodingType.Base64,
+        });
+
+        await sendAssessmentEmailMutation.mutateAsync({
+          assessmentId: assessment.id,
+          fileName: `${fileName}.pdf`,
+          pdfBase64,
+        });
+
+        Alert.alert(
+          "Email sent",
+          `Sent to ${studentEmail} and ${organizationEmail}.`,
+          Platform.OS === "ios" ? undefined : [{ text: "OK" }],
+        );
+
+        return;
+      }
+
+      Alert.alert("Not available", "Email sending isn't available for this assessment type yet.");
+    } catch (error) {
+      Alert.alert("Couldn't send email", toErrorMessage(error));
+    } finally {
+      setEmailingAssessmentId(null);
+    }
+  }
+
+  function onEmailStudentPress(assessment: Assessment) {
+    const student = studentQuery.data ?? null;
+    if (!student) {
+      Alert.alert("Couldn't load student", "Please try again once the student details are loaded.");
+      return;
+    }
+
+    const studentEmail = (student.email ?? "").trim();
+    if (!studentEmail) {
+      Alert.alert("Missing student email", "Add an email address for this student to email assessments.");
+      return;
+    }
+
+    const organizationEmail = (organizationQuery.data?.email ?? "").trim();
+    if (!organizationEmail) {
+      Alert.alert(
+        "Missing organization email",
+        "Set your organization email in Settings to email assessments.",
+      );
+      return;
+    }
+
+    Alert.alert(
+      "Email student?",
+      `This will send the assessment PDF to:\n${studentEmail}\n${organizationEmail}\n\nSender: ${organizationEmail}`,
+      [
+        { text: "Cancel", style: "cancel" },
+        { text: "Send", onPress: () => void sendAssessmentEmail(assessment) },
+      ],
+    );
   }
 
   const header = (
@@ -1239,8 +1461,25 @@ export function StudentAssessmentHistoryScreen({ route }: Props) {
           width="auto"
           label={downloadingAssessmentId === assessment.id ? "Saving PDF..." : "Download PDF"}
           icon={Download}
-          disabled={downloadingAssessmentId === assessment.id || deletingAssessmentId === assessment.id}
+          disabled={
+            downloadingAssessmentId === assessment.id ||
+            emailingAssessmentId === assessment.id ||
+            deletingAssessmentId === assessment.id
+          }
           onPress={() => void onDownloadPdfPress(assessment)}
+        />
+
+        <AppButton
+          width="auto"
+          variant="secondary"
+          label={emailingAssessmentId === assessment.id ? "Sending..." : "Email student"}
+          icon={Mail}
+          disabled={
+            downloadingAssessmentId === assessment.id ||
+            emailingAssessmentId === assessment.id ||
+            deletingAssessmentId === assessment.id
+          }
+          onPress={() => onEmailStudentPress(assessment)}
         />
 
         <AppDivider />
@@ -1316,7 +1555,11 @@ export function StudentAssessmentHistoryScreen({ route }: Props) {
           variant="danger"
           label={deletingAssessmentId === assessment.id ? "Deleting..." : "Delete assessment"}
           icon={Trash2}
-          disabled={deletingAssessmentId === assessment.id || downloadingAssessmentId === assessment.id}
+          disabled={
+            deletingAssessmentId === assessment.id ||
+            downloadingAssessmentId === assessment.id ||
+            emailingAssessmentId === assessment.id
+          }
           onPress={() => onDeletePress(assessment)}
         />
       </AppStack>

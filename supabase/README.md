@@ -27,6 +27,7 @@ In the Supabase Dashboard:
    - `supabase/migrations/019_student_reminders.sql`
    - `supabase/migrations/020_student_reminders_time.sql`
    - `supabase/migrations/021_notifications_settings_push.sql`
+   - `supabase/migrations/022_organization_email.sql`
 
 ## Edge Functions
 
@@ -76,6 +77,23 @@ Deploy (requires Supabase CLI):
 Scheduling:
 
 - Create a scheduled job in Supabase Dashboard to call `notifications-cron` (recommended every 5 minutes).
+
+### `send-assessment-email` (authenticated users)
+
+Emails an assessment PDF to the student and BCCs a copy to the organization's email address.
+
+Deploy (requires Supabase CLI):
+
+- `supabase functions deploy send-assessment-email --no-verify-jwt`
+- Set secrets (Dashboard or CLI):
+  - `SUPABASE_URL`
+  - `SUPABASE_SERVICE_ROLE_KEY`
+  - `RESEND_API_KEY`
+
+Notes:
+
+- Sender is `organizations.email` (set this in-app via Settings â†’ Organization).
+- The function uses Resend (the sender domain must be verified in Resend; personal inbox domains like `gmail.com` won't work as a `From` address).
 
 ## Storage buckets + policies
 
