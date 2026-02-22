@@ -1,5 +1,85 @@
 # PROJECT_LOG.md
 
+- **Date:** 2026-02-22 (Pacific/Auckland)
+- **Task:** Assessment email error messaging
+- **Summary:**
+  - Surfaced Resend error messages in the Edge Function response for easier diagnosis.
+  - Logged provider failures in Supabase Edge Function logs.
+
+---
+
+- **Date:** 2026-02-22 (Pacific/Auckland)
+- **Task:** Home buttons + email assessment PDFs
+- **Summary:**
+  - Rearranged Home quick actions into a 3x2 grid (Students/Lessons, Assessments/Sessions, Google Maps bottom-right).
+  - Added an "Email student" action in Assessment History to email PDFs to the student and the organization.
+
+---
+
+- **Date:** 2026-02-22 (Pacific/Auckland)
+- **Task:** Organization email setting
+- **Summary:**
+  - Added organization email field + edit screen in Settings.
+  - Displayed the org email in the Organization block and added a "Change organization email" action.
+
+---
+
+- **Date:** 2026-02-22 (Pacific/Auckland)
+- **Task:** Restricted PDF stage pagination
+- **Summary:**
+  - Hid Stage 2 section/details in the PDF when Stage 2 was not enabled.
+  - Forced Stage 2 (when enabled) to start on a new PDF page.
+
+---
+
+- **Date:** 2026-02-22 (Pacific/Auckland)
+- **Task:** Suggestions: blue subheadings + auto-grow inputs
+- **Summary:**
+  - Updated suggestion modal category labels to use blue styling.
+  - Made suggestion-linked multiline inputs auto-expand to fit content (no internal scrolling).
+
+---
+
+- **Date:** 2026-02-22 (Pacific/Auckland)
+- **Task:** Bottom sheet spacing + scrollbars
+- **Summary:**
+  - Restored the previous bottom sheet top padding and added extra spacing between the handle and content.
+  - Underlined suggestion subheadings, fixed long suggestions scrolling, and hid scroll indicators across the app.
+
+---
+
+- **Date:** 2026-02-22 (Pacific/Auckland)
+- **Task:** Bottom sheet + navbar polish
+- **Summary:**
+  - Standardized bottom sheet padding/typography (bigger headings, bolder category labels, left-aligned suggestion options).
+  - Updated header buttons so drawer root screens show hamburger only, and all other screens show back only (no navbar titles).
+
+---
+
+- **Date:** 2026-02-22 (Pacific/Auckland)
+- **Task:** Restricted suggestions bottom sheet
+- **Summary:**
+  - Switched the suggestions picker (task errors + feedback) to the same bottom-sheet pattern as the task repetition modal.
+  - Updated suggestions helper copy to reflect handle/backdrop dismissal.
+
+---
+
+- **Date:** 2026-02-22 (Pacific/Auckland)
+- **Task:** Restricted task modal bottom sheet
+- **Summary:**
+  - Converted the task repetition modal into an animated bottom sheet with a handle (drag or tap to expand/collapse, tap backdrop to dismiss).
+  - Matched the modal padding to the main screen container paddings.
+
+---
+
+- **Date:** 2026-02-22 (Pacific/Auckland)
+- **Task:** Restricted mock test UX refinements
+- **Summary:**
+  - Defaulted pre-drive Time to current time, removed the optional label, and auto-expanded Stage 1 when starting/resuming.
+  - Moved error/feedback suggestions into a dedicated modal and persisted in-progress task repetition selections with dynamic modal height.
+
+---
+
 - **Date:** 2026-02-21 (Pacific/Auckland)
 - **Task:** Lessons address label + size
 - **Summary:**
@@ -57,7 +137,7 @@
 - **Date:** 2026-02-21 (Pacific/Auckland)
 - **Task:** Notifications test buttons for all roles
 - **Summary:**
-  - Made “Send test notification” buttons visible for owners and instructors (not admin-only).
+  - Made â€œSend test notificationâ€ buttons visible for owners and instructors (not admin-only).
 
 ---
 
@@ -74,83 +154,3 @@
 - **Summary:**
   - Simplified notification category settings to On/Off segmented controls only (removed Sound/Vibration UI and defaulted both to On when enabled).
   - Disabling Downloads/Student reminders now prevents local notifications and clears scheduled reminder alerts on the device.
-
----
-
-- **Date:** 2026-02-21 (Pacific/Auckland)
-- **Task:** Notifications screen compact toggles
-- **Summary:**
-  - Switched notification settings to larger blue/grey toggle switches and combined section title, enable, sound, and vibration controls into a single row.
-  - Reduced whitespace with a two-column layout: title + enable on the left, sound/vibration controls right-aligned on the right.
-
----
-
-- **Date:** 2026-02-21 (Pacific/Auckland)
-- **Task:** Notifications screen toggle switches
-- **Summary:**
-  - Replaced On/Off segmented controls with right-aligned toggle switches and slightly larger labels.
-  - Restricted "Send test notification" buttons to `admin` users only.
-
----
-
-- **Date:** 2026-02-21 (Pacific/Auckland)
-- **Task:** Android FCM setup for push notifications
-- **Summary:**
-  - Added Expo Android `googleServicesFile` config so Android devices can register for push notifications.
-  - Documented the required Firebase/EAS FCM credential setup steps for Android push delivery.
-
----
-
-- **Date:** 2026-02-19 (Pacific/Auckland)
-- **Task:** Notifications preferences + lesson alerts
-- **Summary:**
-  - Added per-category sound/vibration preferences, test notifications, and push-token registration for cross-device alerts.
-  - Added upcoming-lesson offsets + daily digest settings, plus Supabase tables/Edge Functions for scheduled push delivery.
-
----
-
-- **Date:** 2026-02-19 (Pacific/Auckland)
-- **Task:** Settings notifications screen
-- **Summary:**
-  - Added a `Notifications` button above `Themes` in Settings.
-  - Added a Notifications screen to show permission status and open/request device notification permissions.
-
----
-
-- **Date:** 2026-02-13 (Pacific/Auckland)
-- **Task:** Fix ThemedBackdrop hook order crash
-- **Summary:**
-  - Removed conditional hook execution in `ThemedBackdrop` by making `useRef` and `useEffect` run on every render.
-  - Fixed runtime hook-order errors when switching between themes with and without premium backdrops.
-
----
-
-- **Date:** 2026-02-13 (Pacific/Auckland)
-- **Task:** Themes screen free/premium sections + premium fonts
-- **Summary:**
-  - Split Themes screen into collapsible Free vs Premium blocks and auto-collapsed the non-selected group.
-  - Added per-premium-theme typography via Google Fonts remote font loading so premium selections update the app font.
-
----
-
-- **Date:** 2026-02-13 (Pacific/Auckland)
-- **Task:** Premium themes + textured backdrops
-- **Summary:**
-  - Added 10 new premium theme presets (5 light, 5 dark) and surfaced premium labeling in the Themes list.
-  - Added themed backdrop textures/gradients so premium themes feel materially different beyond color alone.
-
----
-
-- **Date:** 2026-02-13 (Pacific/Auckland)
-- **Task:** Theme selection first-update navbar color fix
-- **Summary:**
-  - Updated theme setter actions to apply theme colors synchronously before state updates so navigation reads fresh palette values immediately.
-  - Fixed first theme selection in `Themes` screen not updating navbar/header colors until a later interaction.
-
----
-
-- **Date:** 2026-02-13 (Pacific/Auckland)
-- **Task:** Themes screen list-style selector
-- **Summary:**
-  - Replaced the Themes screen style dropdown with an always-visible list of theme presets.
-  - Kept selected-theme highlighting and tap-to-select behavior for the active light/dark mode.

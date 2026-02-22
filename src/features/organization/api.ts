@@ -86,6 +86,22 @@ export async function updateOrganizationName(organizationId: string, name: strin
   if (error) throw error;
 }
 
+export async function updateOrganizationEmail(organizationId: string, email: string | null) {
+  const trimmedEmail = email?.trim() ?? "";
+  const nextEmail = trimmedEmail === "" ? null : trimmedEmail;
+
+  if (nextEmail && !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(nextEmail)) {
+    throw new Error("Enter a valid email.");
+  }
+
+  const { error } = await supabase
+    .from("organizations")
+    .update({ email: nextEmail })
+    .eq("id", organizationId);
+
+  if (error) throw error;
+}
+
 export async function uploadOrganizationLogo(input: UploadOrganizationLogoInput) {
   const extension = guessFileExtension(input.asset);
   const contentType = guessContentType(input.asset);

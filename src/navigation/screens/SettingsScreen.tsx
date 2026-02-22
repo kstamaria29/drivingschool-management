@@ -2,6 +2,7 @@ import * as ImagePicker from "expo-image-picker";
 import { ActivityIndicator, Pressable, View } from "react-native";
 import { useState } from "react";
 import {
+  AtSign,
   BellRing,
   Building2,
   IdCard,
@@ -146,7 +147,7 @@ export function SettingsScreen() {
           <View className="flex-1">
             <AppText variant="body">{orgQuery.data?.name ?? "Organization"}</AppText>
             <AppText variant="caption">
-              Owners and admins can update the organization logo.
+              {orgQuery.data?.email?.trim() ? orgQuery.data.email : "No organization email set."}
             </AppText>
           </View>
         </View>
@@ -160,6 +161,14 @@ export function SettingsScreen() {
             icon={Building2}
             disabled={!canManageOrganization}
             onPress={() => navigation.navigate("EditOrganizationName")}
+          />
+
+          <AppButton
+            label="Change organization email"
+            variant="secondary"
+            icon={AtSign}
+            disabled={!canManageOrganization}
+            onPress={() => navigation.navigate("EditOrganizationEmail")}
           />
 
           <AppButton

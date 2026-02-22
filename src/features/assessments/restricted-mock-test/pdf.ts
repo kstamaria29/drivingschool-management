@@ -61,23 +61,7 @@ function buildHtml(input: Input) {
 
   const stage1Faults = summary.stage1Faults ?? 0;
   const stage2Faults = summary.stage2Faults ?? 0;
-  const stage2HasRecordedItems =
-    stage2Repetitions > 0 ||
-    stage2Faults > 0 ||
-    Object.values(v.stagesState.stage2 || {}).some((task) => {
-      return (
-        Boolean(task.location?.trim()) ||
-        Boolean(task.criticalErrors?.trim()) ||
-        Boolean(task.immediateFailureErrors?.trim()) ||
-        Boolean(
-          task.repetitionErrors?.some(
-            (rep) => Boolean(rep.criticalErrors?.trim()) || Boolean(rep.immediateFailureErrors?.trim()),
-          ),
-        ) ||
-        Boolean(task.notes?.trim())
-      );
-    });
-  const stage2Used = Boolean(v.stage2Enabled) || stage2HasRecordedItems;
+  const stage2Enabled = Boolean(v.stage2Enabled);
   const criticalTotal = summary.criticalTotal ?? 0;
   const immediateTotal = summary.immediateTotal ?? 0;
 
@@ -406,12 +390,18 @@ function buildHtml(input: Input) {
                 <span class="stat-red"> Faults: ${escapeHtml(String(stage1Faults))}</span>
               </div>
             </div>
-            <div class="badge badge-stage">
-              <div class="badge-text">
-                Stage 2 <span class="stat-blue">Reps: ${escapeHtml(String(stage2Repetitions))}</span>
-                <span class="stat-red"> Faults: ${escapeHtml(String(stage2Faults))}</span>
-              </div>
-            </div>
+            ${
+              stage2Enabled
+                ? `
+                  <div class="badge badge-stage">
+                    <div class="badge-text">
+                      Stage 2 <span class="stat-blue">Reps: ${escapeHtml(String(stage2Repetitions))}</span>
+                      <span class="stat-red"> Faults: ${escapeHtml(String(stage2Faults))}</span>
+                    </div>
+                  </div>
+                `
+                : ""
+            }
           </div>
           <div class="overview-errors">
             <div class="badge ${criticalTotal > 0 ? "badge-critical" : ""}">
@@ -439,25 +429,22 @@ function buildHtml(input: Input) {
         ${renderStage("stage1")}
       </div>
 
-      <div class="section box-soft">
-        <h2>${escapeHtml(restrictedMockTestStages.find((stage) => stage.id === "stage2")?.name || "Stage 2")}</h2>
-        ${
-          stage2Used
-            ? `
+      ${
+        stage2Enabled
+          ? `
+            <div class="page-break"></div>
+
+            <div class="section box-soft">
+              <h2>${escapeHtml(restrictedMockTestStages.find((stage) => stage.id === "stage2")?.name || "Stage 2")}</h2>
               <div class="stats-row">
                 <div class="stat-blue">Total Repetitions: ${escapeHtml(String(stage2Repetitions))}</div>
                 <div class="stat-red">Total Faults: ${escapeHtml(String(stage2Faults))}</div>
               </div>
-              ${
-                v.stage2Enabled
-                  ? ""
-                  : `<div class="muted" style="margin-top: 6px;">Stage 2 was not enabled, but some items were recorded.</div>`
-              }
               ${renderStage("stage2")}
-            `
-            : `<div class="muted">Stage 2 not enabled.</div>`
-        }
-      </div>
+            </div>
+          `
+          : ""
+      }
 
       ${
         showLegacyCritical

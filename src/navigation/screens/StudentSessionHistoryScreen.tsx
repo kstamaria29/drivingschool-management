@@ -532,6 +532,8 @@ export function StudentSessionHistoryScreen({ route }: Props) {
               <ScrollView
                 keyboardShouldPersistTaps="handled"
                 contentContainerClassName="gap-4 pb-1"
+                showsVerticalScrollIndicator={false}
+                showsHorizontalScrollIndicator={false}
               >
                 <View className="flex-row flex-wrap gap-4">
                   <View className="min-w-56 flex-1">

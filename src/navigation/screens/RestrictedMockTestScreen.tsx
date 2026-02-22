@@ -23,6 +23,7 @@ import {
 import { Controller, useForm } from "react-hook-form";
 
 import { AppButton } from "../../components/AppButton";
+import { AppBottomSheetModal } from "../../components/AppBottomSheetModal";
 import { AppCard } from "../../components/AppCard";
 import { AppCollapsibleCard } from "../../components/AppCollapsibleCard";
 import { AppDateInput } from "../../components/AppDateInput";
@@ -30,6 +31,7 @@ import { AppInput } from "../../components/AppInput";
 import { AppStack } from "../../components/AppStack";
 import { AppText } from "../../components/AppText";
 import { AppTimeInput } from "../../components/AppTimeInput";
+import { SuggestionsPickerModal } from "../../components/SuggestionsPickerModal";
 import { Screen } from "../../components/Screen";
 import { SubmitAssessmentConfirmModal } from "../../components/SubmitAssessmentConfirmModal";
 import { useCurrentUser } from "../../features/auth/current-user";
@@ -42,7 +44,6 @@ import {
   restrictedMockTestTaskCriticalErrorSuggestions,
   restrictedMockTestTaskImmediateFailureErrorSuggestions,
   restrictedMockTestTaskItems,
-  type CategorizedSuggestion,
   type RestrictedMockTestStageId,
   type RestrictedMockTestTaskId,
   type RestrictedMockTestTaskItemId,
@@ -83,6 +84,10 @@ type ActiveTask = { stageId: RestrictedMockTestStageId; taskId: RestrictedMockTe
 type ExclusiveSection = RestrictedMockTestStageId | null;
 
 const DRAFT_VERSION = 1;
+
+function taskModalDraftKey(stageId: RestrictedMockTestStageId, taskId: RestrictedMockTestTaskId) {
+  return `${stageId}:${taskId}`;
+}
 
 function draftKey(userId: string, studentId: string) {
   return `drivingschool.assessments.second_assessment.draft.v${DRAFT_VERSION}:${userId}:${studentId}`;
@@ -163,45 +168,6 @@ function taskFaultCount(task: RestrictedMockTestTaskState) {
   return count;
 }
 
-function buildSuggestionLine(option: CategorizedSuggestion) {
-  return `${option.category} - ${option.text}`;
-}
-
-function hasSuggestionLine(value: string, suggestion: string) {
-  return value
-    .split(/\r?\n/)
-    .some((line) => line.trim().toLowerCase() === suggestion.trim().toLowerCase());
-}
-
-function toggleSuggestionLine(value: string, suggestion: string) {
-  const lines = value.split(/\r?\n/);
-  const index = lines.findIndex(
-    (line) => line.trim().toLowerCase() === suggestion.trim().toLowerCase(),
-  );
-
-  if (index >= 0) {
-    const next = [...lines.slice(0, index), ...lines.slice(index + 1)];
-    return next.join("\n").trimEnd();
-  }
-
-  const trimmed = value.trimEnd();
-  return trimmed ? `${trimmed}\n${suggestion}` : suggestion;
-}
-
-function groupSuggestionsByCategory(options: readonly CategorizedSuggestion[]) {
-  const categories = new Map<string, CategorizedSuggestion[]>();
-  options.forEach((option) => {
-    const list = categories.get(option.category) ?? [];
-    list.push(option);
-    categories.set(option.category, list);
-  });
-
-  return Array.from(categories.entries()).map(([category, suggestions]) => ({
-    category,
-    suggestions,
-  }));
-}
-
 function countSelectedLines(value: string) {
   return value
     .split(/\r?\n/)
@@ -245,6 +211,9 @@ export function RestrictedMockTestScreen({ navigation, route }: Props) {
   const [openTaskSuggestions, setOpenTaskSuggestions] = useState<
     "criticalErrors" | "immediateFailureErrors" | null
   >(null);
+  const [taskModalDrafts, setTaskModalDrafts] = useState<
+    Record<string, Record<RestrictedMockTestTaskItemId, FaultValue>>
+  >({});
   const [taskModalItems, setTaskModalItems] = useState<
     Record<RestrictedMockTestTaskItemId, FaultValue>
   >(() => createEmptyItems());
@@ -361,7 +330,7 @@ export function RestrictedMockTestScreen({ navigation, route }: Props) {
     defaultValues: {
       studentId: "",
       date: dayjs().format("DD/MM/YYYY"),
-      time: "",
+      time: dayjs().format("HH:mm"),
       vehicleInfo: "",
       routeInfo: "",
       preDriveNotes: "",
@@ -422,6 +391,7 @@ export function RestrictedMockTestScreen({ navigation, route }: Props) {
     setTaskModalVisible(false);
     setActiveTask(null);
     setOpenTaskSuggestions(null);
+    setTaskModalDrafts({});
     setOpenFeedbackSuggestions(null);
     setDraftResolvedStudentId(null);
     setSelectedStudentId(studentId);
@@ -430,7 +400,7 @@ export function RestrictedMockTestScreen({ navigation, route }: Props) {
     form.reset({
       studentId,
       date: dayjs().format("DD/MM/YYYY"),
-      time: "",
+      time: dayjs().format("HH:mm"),
       vehicleInfo: "",
       routeInfo: "",
       preDriveNotes: "",
@@ -450,6 +420,7 @@ export function RestrictedMockTestScreen({ navigation, route }: Props) {
     setTaskModalVisible(false);
     setActiveTask(null);
     setOpenTaskSuggestions(null);
+    setTaskModalDrafts({});
     setOpenFeedbackSuggestions(null);
     setDraftResolvedStudentId(null);
     setSelectedStudentId(null);
@@ -458,7 +429,7 @@ export function RestrictedMockTestScreen({ navigation, route }: Props) {
     form.reset({
       studentId: "",
       date: dayjs().format("DD/MM/YYYY"),
-      time: "",
+      time: dayjs().format("HH:mm"),
       vehicleInfo: "",
       routeInfo: "",
       preDriveNotes: "",
@@ -531,23 +502,6 @@ export function RestrictedMockTestScreen({ navigation, route }: Props) {
 
   const saving = createAssessment.isPending;
 
-  const taskCriticalSuggestionGroups = useMemo(
-    () => groupSuggestionsByCategory(restrictedMockTestTaskCriticalErrorSuggestions),
-    [],
-  );
-  const taskImmediateSuggestionGroups = useMemo(
-    () => groupSuggestionsByCategory(restrictedMockTestTaskImmediateFailureErrorSuggestions),
-    [],
-  );
-  const generalFeedbackSuggestionGroups = useMemo(
-    () => groupSuggestionsByCategory(restrictedMockTestGeneralFeedbackSuggestions),
-    [],
-  );
-  const improvementNeededSuggestionGroups = useMemo(
-    () => groupSuggestionsByCategory(restrictedMockTestImprovementNeededSuggestions),
-    [],
-  );
-
   const draftHydratedRef = useRef<string | null>(null);
   const draftSaveTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
 
@@ -588,15 +542,16 @@ export function RestrictedMockTestScreen({ navigation, route }: Props) {
             void AsyncStorage.removeItem(key);
             setStage2Enabled(false);
             setStagesState(createEmptyStagesState());
-            setOpenSection(null);
+            setOpenSection("stage1");
             setTaskModalVisible(false);
             setActiveTask(null);
             setOpenTaskSuggestions(null);
+            setTaskModalDrafts({});
             setOpenFeedbackSuggestions(null);
             form.reset({
               studentId,
               date: dayjs().format("DD/MM/YYYY"),
-              time: "",
+              time: dayjs().format("HH:mm"),
               vehicleInfo: "",
               routeInfo: "",
               preDriveNotes: "",
@@ -614,7 +569,7 @@ export function RestrictedMockTestScreen({ navigation, route }: Props) {
             form.reset({
               studentId,
               date: parsed?.date ?? form.getValues("date"),
-              time: parsed?.time ?? "",
+              time: parsed?.time ?? dayjs().format("HH:mm"),
               vehicleInfo: parsed?.vehicleInfo ?? "",
               routeInfo: parsed?.routeInfo ?? "",
               preDriveNotes: parsed?.preDriveNotes ?? "",
@@ -625,8 +580,9 @@ export function RestrictedMockTestScreen({ navigation, route }: Props) {
             });
             setStage2Enabled(Boolean(parsed?.stage2Enabled));
             setStagesState(parsed?.stagesState ?? createEmptyStagesState());
-            setOpenSection(null);
+            setOpenSection("stage1");
             setOpenTaskSuggestions(null);
+            setTaskModalDrafts({});
             setOpenFeedbackSuggestions(null);
             setDraftResolvedStudentId(studentId);
           },
@@ -793,16 +749,25 @@ export function RestrictedMockTestScreen({ navigation, route }: Props) {
   }
 
   function openTaskModal(stageId: RestrictedMockTestStageId, taskId: RestrictedMockTestTaskId) {
+    const key = taskModalDraftKey(stageId, taskId);
     setActiveTask({ stageId, taskId });
-    setTaskModalItems(createEmptyItems());
+    setTaskModalItems(taskModalDrafts[key] ?? createEmptyItems());
     setOpenTaskSuggestions(null);
     setTaskModalVisible(true);
   }
 
-  function closeTaskModal() {
+  function requestCloseTaskModal() {
+    const task = activeTask;
+    if (task) {
+      const key = taskModalDraftKey(task.stageId, task.taskId);
+      setTaskModalDrafts((prev) => ({ ...prev, [key]: taskModalItems }));
+    }
+    setOpenTaskSuggestions(null);
     setTaskModalVisible(false);
+  }
+
+  function finalizeCloseTaskModal() {
     setActiveTask(null);
-    setTaskModalItems(createEmptyItems());
     setOpenTaskSuggestions(null);
   }
 
@@ -859,6 +824,7 @@ export function RestrictedMockTestScreen({ navigation, route }: Props) {
               students={studentsQuery.data ?? []}
               selectedStudentId={selectedStudentId}
               currentUserId={profile.id}
+              selectedStudentNameClassName="!text-[17px]"
               onSelectStudent={(student) => {
                 resetMockTestForStudent(student.id);
               }}
@@ -962,7 +928,7 @@ export function RestrictedMockTestScreen({ navigation, route }: Props) {
               name="time"
               render={({ field }) => (
                 <AppTimeInput
-                  label="Time (optional)"
+                  label="Time"
                   value={field.value ?? ""}
                   onChangeText={(next) => field.onChange(next)}
                 />
@@ -1148,13 +1114,7 @@ export function RestrictedMockTestScreen({ navigation, route }: Props) {
             const value = field.value ?? "";
             const selectedCount = countSelectedLines(value);
             return (
-              <AppCard className="relative gap-4 border-slate-900 dark:border-borderDark">
-                {openFeedbackSuggestions === "generalFeedback" ? (
-                  <Pressable
-                    className="absolute inset-0 z-10"
-                    onPress={() => setOpenFeedbackSuggestions(null)}
-                  />
-                ) : null}
+              <AppCard className="gap-4 border-slate-900 dark:border-borderDark">
                 <View className="flex-row items-start justify-between gap-3">
                   <View className="flex-1">
                     <AppText variant="heading">General feedback</AppText>
@@ -1171,11 +1131,12 @@ export function RestrictedMockTestScreen({ navigation, route }: Props) {
                   label="General feedback"
                   value={value}
                   onChangeText={field.onChange}
-                  onPressIn={() => setOpenFeedbackSuggestions("generalFeedback")}
                   multiline
                   numberOfLines={5}
                   textAlignVertical="top"
-                  inputClassName="h-32 py-3"
+                  autoGrow
+                  autoGrowMinHeight={128}
+                  inputClassName="py-3"
                 />
 
                 <AppButton
@@ -1193,32 +1154,15 @@ export function RestrictedMockTestScreen({ navigation, route }: Props) {
                   }
                 />
 
-                {openFeedbackSuggestions === "generalFeedback" ? (
-                  <View className="relative z-20 rounded-2xl border border-border bg-card p-3 shadow-sm shadow-black/5 dark:border-borderDark dark:bg-cardDark dark:shadow-black/30">
-                    <AppStack gap="md">
-                      {generalFeedbackSuggestionGroups.map(({ category, suggestions }) => (
-                        <View key={category} className="gap-2">
-                          <AppText variant="label">{category}</AppText>
-                          <AppStack gap="sm">
-                            {suggestions.map((option) => {
-                              const line = buildSuggestionLine(option);
-                              const selected = hasSuggestionLine(value, line);
-                              return (
-                                <AppButton
-                                  key={line}
-                                  width="auto"
-                                  variant={selected ? "primary" : "secondary"}
-                                  label={option.text}
-                                  onPress={() => field.onChange(toggleSuggestionLine(value, line))}
-                                />
-                              );
-                            })}
-                          </AppStack>
-                        </View>
-                      ))}
-                    </AppStack>
-                  </View>
-                ) : null}
+                <SuggestionsPickerModal
+                  visible={openFeedbackSuggestions === "generalFeedback"}
+                  title="General feedback suggestions"
+                  subtitle="Tap suggestions to add/remove them. Tap the handle or backdrop to dismiss."
+                  suggestions={restrictedMockTestGeneralFeedbackSuggestions}
+                  value={value}
+                  onChangeValue={field.onChange}
+                  onClose={() => setOpenFeedbackSuggestions(null)}
+                />
               </AppCard>
             );
           }}
@@ -1231,13 +1175,7 @@ export function RestrictedMockTestScreen({ navigation, route }: Props) {
             const value = field.value ?? "";
             const selectedCount = countSelectedLines(value);
             return (
-              <AppCard className="relative gap-4 border-slate-900 dark:border-borderDark">
-                {openFeedbackSuggestions === "improvementNeeded" ? (
-                  <Pressable
-                    className="absolute inset-0 z-10"
-                    onPress={() => setOpenFeedbackSuggestions(null)}
-                  />
-                ) : null}
+              <AppCard className="gap-4 border-slate-900 dark:border-borderDark">
                   <View className="flex-row items-start justify-between gap-3">
                     <View className="flex-1">
                       <AppText variant="heading">Improvement(s) needed</AppText>
@@ -1254,11 +1192,12 @@ export function RestrictedMockTestScreen({ navigation, route }: Props) {
                   label="Improvement(s) needed"
                   value={value}
                   onChangeText={field.onChange}
-                  onPressIn={() => setOpenFeedbackSuggestions("improvementNeeded")}
                   multiline
                   numberOfLines={5}
                   textAlignVertical="top"
-                  inputClassName="h-32 py-3"
+                  autoGrow
+                  autoGrowMinHeight={128}
+                  inputClassName="py-3"
                 />
 
                 <AppButton
@@ -1276,32 +1215,15 @@ export function RestrictedMockTestScreen({ navigation, route }: Props) {
                   }
                 />
 
-                {openFeedbackSuggestions === "improvementNeeded" ? (
-                  <View className="relative z-20 rounded-2xl border border-border bg-card p-3 shadow-sm shadow-black/5 dark:border-borderDark dark:bg-cardDark dark:shadow-black/30">
-                    <AppStack gap="md">
-                      {improvementNeededSuggestionGroups.map(({ category, suggestions }) => (
-                        <View key={category} className="gap-2">
-                          <AppText variant="label">{category}</AppText>
-                          <AppStack gap="sm">
-                            {suggestions.map((option) => {
-                              const line = buildSuggestionLine(option);
-                              const selected = hasSuggestionLine(value, line);
-                              return (
-                                <AppButton
-                                  key={line}
-                                  width="auto"
-                                  variant={selected ? "primary" : "secondary"}
-                                  label={option.text}
-                                  onPress={() => field.onChange(toggleSuggestionLine(value, line))}
-                                />
-                              );
-                            })}
-                          </AppStack>
-                        </View>
-                      ))}
-                    </AppStack>
-                  </View>
-                ) : null}
+                <SuggestionsPickerModal
+                  visible={openFeedbackSuggestions === "improvementNeeded"}
+                  title="Improvement(s) needed suggestions"
+                  subtitle="Tap suggestions to add/remove them. Tap the handle or backdrop to dismiss."
+                  suggestions={restrictedMockTestImprovementNeededSuggestions}
+                  value={value}
+                  onChangeValue={field.onChange}
+                  onClose={() => setOpenFeedbackSuggestions(null)}
+                />
               </AppCard>
             );
           }}
@@ -1338,17 +1260,18 @@ export function RestrictedMockTestScreen({ navigation, route }: Props) {
         <AppText variant="caption">The test auto-saves on this device while you’re in the test screen.</AppText>
         <AppStack gap="sm">
           <AppButton width="auto" variant="secondary" label="Back" onPress={() => setStage("details")} />
-          <AppButton
-            width="auto"
-            label="Start test"
-            onPress={() => {
-              setStage("test");
-              scrollToTop(false);
-            }}
-          />
-          <AppButton width="auto" variant="ghost" label="Cancel" onPress={() => navigation.goBack()} />
-        </AppStack>
-      </AppCard>
+            <AppButton
+              width="auto"
+              label="Start test"
+              onPress={() => {
+                setStage("test");
+                setOpenSection("stage1");
+                scrollToTop(false);
+              }}
+            />
+            <AppButton width="auto" variant="ghost" label="Cancel" onPress={() => navigation.goBack()} />
+          </AppStack>
+        </AppCard>
     ) : (
       <>
         {createAssessment.isError ? (
@@ -1384,6 +1307,8 @@ export function RestrictedMockTestScreen({ navigation, route }: Props) {
             keyboardShouldPersistTaps="handled"
             keyboardDismissMode={Platform.OS === "ios" ? "interactive" : "on-drag"}
             automaticallyAdjustKeyboardInsets={Platform.OS === "ios" && keyboardAwareEnabled}
+            showsVerticalScrollIndicator={false}
+            showsHorizontalScrollIndicator={false}
             contentContainerClassName={cn(theme.screen.scrollContent, isCompact ? "pb-6" : "pb-8")}
             onScroll={keyboardAwareEnabled ? onScroll : undefined}
             scrollEventThrottle={keyboardAwareEnabled ? 16 : undefined}
@@ -1427,339 +1352,287 @@ export function RestrictedMockTestScreen({ navigation, route }: Props) {
         }}
       />
 
-      <Modal
+      <AppBottomSheetModal
         visible={taskModalVisible}
-        transparent
-        animationType="fade"
-        onRequestClose={closeTaskModal}
+        onRequestClose={requestCloseTaskModal}
+        onClosed={finalizeCloseTaskModal}
+        collapsedHeightRatio={0.45}
       >
-        <Pressable
-          className="flex-1 items-stretch justify-center bg-black/40 px-4"
-          onPress={closeTaskModal}
-        >
-          <Pressable
-            className="w-full"
-            onPress={(event) => event.stopPropagation()}
-          >
-            <AppCard
-              className={cn(
-                "gap-3 overflow-hidden rounded-3xl border-slate-900/40 shadow-2xl shadow-black/20 dark:border-slate-50/10 dark:shadow-black/60",
-                isCompact ? "p-3" : "p-4",
-              )}
-              style={{ height: Math.round(height * 0.9) }}
-            >
-              {activeTask && activeTaskDef && activeTaskState ? (
-                <>
-                  {(() => {
-                    const currentItems = activeTaskState.items as Record<RestrictedMockTestTaskItemId, number>;
-                    const recordedFaults = restrictedMockTestTaskItems.reduce((sum, item) => {
-                      return sum + (currentItems[item.id] ?? 0);
-                    }, 0);
-                    const selectedFaults = restrictedMockTestTaskItems.reduce((sum, item) => {
-                      return taskModalItems[item.id] === "fault" ? sum + 1 : sum;
-                    }, 0);
-                    const previewFaults = recordedFaults + selectedFaults;
+        {activeTask && activeTaskDef && activeTaskState ? (
+          <>
+            {(() => {
+              const currentItems = activeTaskState.items as Record<RestrictedMockTestTaskItemId, number>;
+              const recordedFaults = restrictedMockTestTaskItems.reduce((sum, item) => {
+                return sum + (currentItems[item.id] ?? 0);
+              }, 0);
+              const selectedFaults = restrictedMockTestTaskItems.reduce((sum, item) => {
+                return taskModalItems[item.id] === "fault" ? sum + 1 : sum;
+              }, 0);
+              const previewFaults = recordedFaults + selectedFaults;
 
-                    return (
-                  <View className="flex-row items-start justify-between gap-3">
-                    <View className="flex-1">
-                      <AppText variant="heading">{activeTaskDef.name}</AppText>
-                      <View className="mt-2 flex-row flex-wrap items-center gap-x-4 gap-y-1">
-                        <AppText className="text-xl !text-blue-600 dark:!text-blue-400" variant="body">
-                          Repetitions: {activeTaskState.repetitions ?? 0}
-                        </AppText>
-                        <AppText className="text-xl !text-red-600 dark:!text-red-400" variant="body">
-                          Faults: {previewFaults}
-                        </AppText>
-                      </View>
-                    </View>
-
-                    <View className="items-end gap-2">
-                      <AppButton
-                        width="auto"
-                        variant="primary"
-                        className="bg-green-600 border-green-600 dark:bg-green-500 dark:border-green-500"
-                        label="Record Repetition"
-                        icon={Save}
-                        onPress={() => {
-                          if (openTaskSuggestions) setOpenTaskSuggestions(null);
-                          const stageId = activeTask.stageId;
-                          const taskId = activeTask.taskId;
-                          const taskName = activeTaskDef.name;
-                          const nextCount = (activeTaskState.repetitions ?? 0) + 1;
-                          Alert.alert(
-                            "Record repetition?",
-                            `Save repetition #${nextCount} for "${taskName}"?`,
-                            [
-                              { text: "Cancel", style: "cancel" },
-                               {
-                                 text: "Record",
-                                  onPress: () => {
-                                    Keyboard.dismiss();
-                                    setStagesState((prev) =>
-                                      updateTaskState(prev, stageId, taskId, (task) => {
-                                       const nextItems: Record<RestrictedMockTestTaskItemId, number> = {
-                                         ...task.items,
-                                       };
-
-                                      restrictedMockTestTaskItems.forEach((item) => {
-                                        if (taskModalItems[item.id] === "fault") {
-                                          nextItems[item.id] = (nextItems[item.id] ?? 0) + 1;
-                                        }
-                                      });
-
-                                       return {
-                                         ...task,
-                                         repetitions: (task.repetitions ?? 0) + 1,
-                                         items: nextItems,
-                                         repetitionErrors: [
-                                           ...(task.repetitionErrors ?? []),
-                                           {
-                                             criticalErrors: task.criticalErrors ?? "",
-                                             immediateFailureErrors: task.immediateFailureErrors ?? "",
-                                           },
-                                         ],
-                                         criticalErrors: "",
-                                         immediateFailureErrors: "",
-                                       };
-                                     }),
-                                   );
-                                    setTaskModalItems(createEmptyItems());
-                                    setOpenTaskSuggestions(null);
-                                 },
-                               },
-                             ],
-                           );
-                         }}
-                      />
+              return (
+                <View className="flex-row items-start justify-between gap-3">
+                  <View className="flex-1">
+                    <AppText className="!text-[22px]" variant="heading">
+                      {activeTaskDef.name}
+                    </AppText>
+                    <View className="mt-2 flex-row flex-wrap items-center gap-x-4 gap-y-1">
+                      <AppText className="text-xl !text-blue-600 dark:!text-blue-400" variant="body">
+                        Repetitions: {activeTaskState.repetitions ?? 0}
+                      </AppText>
+                      <AppText className="text-xl !text-red-600 dark:!text-red-400" variant="body">
+                        Faults: {previewFaults}
+                      </AppText>
                     </View>
                   </View>
+
+                  <View className="items-end gap-2">
+                    <AppButton
+                      width="auto"
+                      variant="primary"
+                      className="bg-green-600 border-green-600 dark:bg-green-500 dark:border-green-500"
+                      label="Record Repetition"
+                      icon={Save}
+                      onPress={() => {
+                        if (openTaskSuggestions) setOpenTaskSuggestions(null);
+                        const stageId = activeTask.stageId;
+                        const taskId = activeTask.taskId;
+                        const taskName = activeTaskDef.name;
+                        const nextCount = (activeTaskState.repetitions ?? 0) + 1;
+                        Alert.alert(
+                          "Record repetition?",
+                          `Save repetition #${nextCount} for "${taskName}"?`,
+                          [
+                            { text: "Cancel", style: "cancel" },
+                            {
+                              text: "Record",
+                              onPress: () => {
+                                Keyboard.dismiss();
+                                setStagesState((prev) =>
+                                  updateTaskState(prev, stageId, taskId, (task) => {
+                                    const nextItems: Record<RestrictedMockTestTaskItemId, number> = {
+                                      ...task.items,
+                                    };
+
+                                    restrictedMockTestTaskItems.forEach((item) => {
+                                      if (taskModalItems[item.id] === "fault") {
+                                        nextItems[item.id] = (nextItems[item.id] ?? 0) + 1;
+                                      }
+                                    });
+
+                                    return {
+                                      ...task,
+                                      repetitions: (task.repetitions ?? 0) + 1,
+                                      items: nextItems,
+                                      repetitionErrors: [
+                                        ...(task.repetitionErrors ?? []),
+                                        {
+                                          criticalErrors: task.criticalErrors ?? "",
+                                          immediateFailureErrors: task.immediateFailureErrors ?? "",
+                                        },
+                                      ],
+                                      criticalErrors: "",
+                                      immediateFailureErrors: "",
+                                    };
+                                  }),
+                                );
+                                const cleared = createEmptyItems();
+                                setTaskModalItems(cleared);
+                                setTaskModalDrafts((drafts) => ({
+                                  ...drafts,
+                                  [taskModalDraftKey(stageId, taskId)]: cleared,
+                                }));
+                                setOpenTaskSuggestions(null);
+                              },
+                            },
+                          ],
+                        );
+                      }}
+                    />
+                  </View>
+                </View>
+              );
+            })()}
+
+            <ScrollView
+              style={{ flexShrink: 1 }}
+              keyboardShouldPersistTaps="handled"
+              keyboardDismissMode={Platform.OS === "ios" ? "interactive" : "on-drag"}
+              automaticallyAdjustKeyboardInsets={Platform.OS === "ios"}
+              showsVerticalScrollIndicator={false}
+              showsHorizontalScrollIndicator={false}
+            >
+              <AppStack gap="md" className={cn(isCompact ? "pt-1" : "pt-2")}>
+                <AppInput
+                  label="Location / reference (street, landmark, direction)"
+                  value={activeTaskState.location}
+                  onChangeText={(next) => {
+                    const stageId = activeTask.stageId;
+                    const taskId = activeTask.taskId;
+                    setStagesState((prev) =>
+                      updateTaskState(prev, stageId, taskId, (task) => ({
+                        ...task,
+                        location: next,
+                      })),
                     );
-                  })()}
+                  }}
+                />
 
-                  <ScrollView
-                    style={{ flex: 1 }}
-                    keyboardShouldPersistTaps="handled"
-                    keyboardDismissMode={Platform.OS === "ios" ? "interactive" : "on-drag"}
-                    automaticallyAdjustKeyboardInsets={Platform.OS === "ios"}
-                  >
-                    <AppStack gap="md" className={cn("relative", isCompact ? "pt-1" : "pt-2")}>
-                      {openTaskSuggestions ? (
-                        <Pressable
-                          className="absolute inset-0 z-10"
-                          onPress={() => setOpenTaskSuggestions(null)}
-                        />
-                      ) : null}
-                      <AppInput
-                        label="Location / reference (street, landmark, direction)"
-                        value={activeTaskState.location}
-                        onChangeText={(next) => {
-                          const stageId = activeTask.stageId;
-                          const taskId = activeTask.taskId;
-                          setStagesState((prev) =>
-                            updateTaskState(prev, stageId, taskId, (task) => ({
-                              ...task,
-                              location: next,
-                            })),
-                          );
-                        }}
-                      />
-
-                      <AppStack gap="sm">
-                        <AppText variant="caption">
-                          Tap a button to mark a Fault (red). Tap again to reset to OK / n/a.
-                        </AppText>
-                        <View className="flex-row flex-wrap gap-2">
-                          {restrictedMockTestTaskItems.map((item) => {
-                            const current = taskModalItems[item.id] as FaultValue;
-                            const isFault = current === "fault";
-                            return (
-                              <Pressable
-                                key={item.id}
-                                accessibilityRole="button"
-                                accessibilityState={{ selected: isFault }}
-                                className={cn(
-                                  "w-[48%] rounded-xl border px-3 py-3",
-                                  isFault
-                                    ? "border-danger bg-danger dark:border-dangerDark dark:bg-dangerDark"
-                                    : "border-border bg-background dark:border-borderDark dark:bg-backgroundDark",
-                                )}
-                                onPress={() => {
-                                  setTaskModalItems((prev) => ({
-                                    ...prev,
-                                    [item.id]: isFault ? "" : "fault",
-                                  }));
-                                }}
-                              >
-                                <AppText className={cn("text-center", isFault && "text-primaryForeground")} variant="button">
-                                  {item.label}
-                                </AppText>
-                              </Pressable>
-                            );
-                          })}
-                        </View>
-                      </AppStack>
-
-                      <AppInput
-                        label="Critical error(s)"
-                        value={activeTaskState.criticalErrors ?? ""}
-                        onChangeText={(next) => {
-                          const stageId = activeTask.stageId;
-                          const taskId = activeTask.taskId;
-                          setStagesState((prev) =>
-                            updateTaskState(prev, stageId, taskId, (task) => ({
-                              ...task,
-                              criticalErrors: next,
-                            })),
-                          );
-                        }}
-                        onPressIn={() => setOpenTaskSuggestions("criticalErrors")}
-                        multiline
-                        numberOfLines={5}
-                        textAlignVertical="top"
-                        inputClassName="h-32 py-3"
-                      />
-
-                      <AppButton
-                        width="auto"
-                        variant="ghost"
-                        label={
-                          openTaskSuggestions === "criticalErrors" ? "Hide suggestions" : "Show suggestions"
-                        }
-                        onPress={() =>
-                          setOpenTaskSuggestions((current) =>
-                            current === "criticalErrors" ? null : "criticalErrors",
-                          )
-                        }
-                      />
-
-                      {openTaskSuggestions === "criticalErrors" ? (
-                        <View className="relative z-20 rounded-2xl border border-border bg-card p-3 shadow-sm shadow-black/5 dark:border-borderDark dark:bg-cardDark dark:shadow-black/30">
-                          <AppStack gap="md">
-                            {taskCriticalSuggestionGroups.map(({ category, suggestions }) => (
-                              <View key={category} className="gap-2">
-                                <AppText variant="label">{category}</AppText>
-                                <AppStack gap="sm">
-                                  {suggestions.map((option) => {
-                                    const line = buildSuggestionLine(option);
-                                    const selected = hasSuggestionLine(activeTaskState.criticalErrors ?? "", line);
-                                    return (
-                                      <AppButton
-                                        key={line}
-                                        width="auto"
-                                        variant={selected ? "primary" : "secondary"}
-                                        label={option.text}
-                                        onPress={() => {
-                                          const stageId = activeTask.stageId;
-                                          const taskId = activeTask.taskId;
-                                          setStagesState((prev) =>
-                                            updateTaskState(prev, stageId, taskId, (task) => ({
-                                              ...task,
-                                              criticalErrors: toggleSuggestionLine(task.criticalErrors ?? "", line),
-                                            })),
-                                          );
-                                        }}
-                                      />
-                                    );
-                                  })}
-                                </AppStack>
-                              </View>
-                            ))}
-                          </AppStack>
-                        </View>
-                      ) : null}
-
-                      <AppInput
-                        label="Immediate failure error"
-                        value={activeTaskState.immediateFailureErrors ?? ""}
-                        onChangeText={(next) => {
-                          const stageId = activeTask.stageId;
-                          const taskId = activeTask.taskId;
-                          setStagesState((prev) =>
-                            updateTaskState(prev, stageId, taskId, (task) => ({
-                              ...task,
-                              immediateFailureErrors: next,
-                            })),
-                          );
-                        }}
-                        onPressIn={() => setOpenTaskSuggestions("immediateFailureErrors")}
-                        multiline
-                        numberOfLines={5}
-                        textAlignVertical="top"
-                        inputClassName="h-32 py-3"
-                      />
-
-                      <AppButton
-                        width="auto"
-                        variant="ghost"
-                        label={
-                          openTaskSuggestions === "immediateFailureErrors"
-                            ? "Hide suggestions"
-                            : "Show suggestions"
-                        }
-                        onPress={() =>
-                          setOpenTaskSuggestions((current) =>
-                            current === "immediateFailureErrors" ? null : "immediateFailureErrors",
-                          )
-                        }
-                      />
-
-                      {openTaskSuggestions === "immediateFailureErrors" ? (
-                        <View className="relative z-20 rounded-2xl border border-border bg-card p-3 shadow-sm shadow-black/5 dark:border-borderDark dark:bg-cardDark dark:shadow-black/30">
-                          <AppStack gap="md">
-                            {taskImmediateSuggestionGroups.map(({ category, suggestions }) => (
-                              <View key={category} className="gap-2">
-                                <AppText variant="label">{category}</AppText>
-                                <AppStack gap="sm">
-                                  {suggestions.map((option) => {
-                                    const line = buildSuggestionLine(option);
-                                    const selected = hasSuggestionLine(
-                                      activeTaskState.immediateFailureErrors ?? "",
-                                      line,
-                                    );
-                                    return (
-                                      <AppButton
-                                        key={line}
-                                        width="auto"
-                                        variant={selected ? "danger" : "secondary"}
-                                        label={option.text}
-                                        onPress={() => {
-                                          const stageId = activeTask.stageId;
-                                          const taskId = activeTask.taskId;
-                                          setStagesState((prev) =>
-                                            updateTaskState(prev, stageId, taskId, (task) => ({
-                                              ...task,
-                                              immediateFailureErrors: toggleSuggestionLine(
-                                                task.immediateFailureErrors ?? "",
-                                                line,
-                                              ),
-                                            })),
-                                          );
-                                        }}
-                                      />
-                                    );
-                                  })}
-                                </AppStack>
-                              </View>
-                            ))}
-                          </AppStack>
-                        </View>
-                      ) : null}
-
-                      <AppButton width="auto" variant="secondary" label="Close" onPress={closeTaskModal} />
-                    </AppStack>
-                  </ScrollView>
-                </>
-              ) : (
                 <AppStack gap="sm">
-                  <AppText variant="heading">No task selected</AppText>
-                  <AppButton width="auto" variant="secondary" label="Close" onPress={closeTaskModal} />
+                  <AppText variant="caption">
+                    Tap a button to mark a Fault (red).
+                  </AppText>
+                  <View className="flex-row flex-wrap gap-2">
+                    {restrictedMockTestTaskItems.map((item) => {
+                      const current = taskModalItems[item.id] as FaultValue;
+                      const isFault = current === "fault";
+                      return (
+                        <Pressable
+                          key={item.id}
+                          accessibilityRole="button"
+                          accessibilityState={{ selected: isFault }}
+                          className={cn(
+                            "w-[48%] rounded-xl border px-3 py-3",
+                            isFault
+                              ? "border-danger bg-danger dark:border-dangerDark dark:bg-dangerDark"
+                              : "border-border bg-background dark:border-borderDark dark:bg-backgroundDark",
+                          )}
+                          onPress={() => {
+                            const task = activeTask;
+                            setTaskModalItems((prev) => {
+                              const nextValue: FaultValue = prev[item.id] === "fault" ? "" : "fault";
+                              const next = { ...prev, [item.id]: nextValue };
+                              if (task) {
+                                const key = taskModalDraftKey(task.stageId, task.taskId);
+                                setTaskModalDrafts((drafts) => ({ ...drafts, [key]: next }));
+                              }
+                              return next;
+                            });
+                          }}
+                        >
+                          <AppText
+                            className={cn("text-center", isFault && "text-primaryForeground")}
+                            variant="button"
+                          >
+                            {item.label}
+                          </AppText>
+                        </Pressable>
+                      );
+                    })}
+                  </View>
                 </AppStack>
-              )}
-            </AppCard>
-          </Pressable>
-        </Pressable>
-      </Modal>
+
+                <AppInput
+                  label="Critical error(s)"
+                  value={activeTaskState.criticalErrors ?? ""}
+                  onChangeText={(next) => {
+                    const stageId = activeTask.stageId;
+                    const taskId = activeTask.taskId;
+                    setStagesState((prev) =>
+                      updateTaskState(prev, stageId, taskId, (task) => ({
+                        ...task,
+                        criticalErrors: next,
+                      })),
+                    );
+                  }}
+                  multiline
+                  numberOfLines={5}
+                  textAlignVertical="top"
+                  autoGrow
+                  autoGrowMinHeight={128}
+                  inputClassName="py-3"
+                />
+
+                <AppButton
+                  width="auto"
+                  variant="ghost"
+                  label={openTaskSuggestions === "criticalErrors" ? "Hide suggestions" : "Show suggestions"}
+                  onPress={() =>
+                    setOpenTaskSuggestions((current) => (current === "criticalErrors" ? null : "criticalErrors"))
+                  }
+                />
+
+                <SuggestionsPickerModal
+                  visible={openTaskSuggestions === "criticalErrors"}
+                  title="Critical error(s) suggestions"
+                  subtitle="Tap suggestions to add/remove them. Tap the handle or backdrop to dismiss."
+                  suggestions={restrictedMockTestTaskCriticalErrorSuggestions}
+                  value={activeTaskState.criticalErrors ?? ""}
+                  onChangeValue={(next) => {
+                    const stageId = activeTask.stageId;
+                    const taskId = activeTask.taskId;
+                    setStagesState((prev) =>
+                      updateTaskState(prev, stageId, taskId, (task) => ({ ...task, criticalErrors: next })),
+                    );
+                  }}
+                  onClose={() => setOpenTaskSuggestions(null)}
+                />
+
+                <AppInput
+                  label="Immediate failure error"
+                  value={activeTaskState.immediateFailureErrors ?? ""}
+                  onChangeText={(next) => {
+                    const stageId = activeTask.stageId;
+                    const taskId = activeTask.taskId;
+                    setStagesState((prev) =>
+                      updateTaskState(prev, stageId, taskId, (task) => ({
+                        ...task,
+                        immediateFailureErrors: next,
+                      })),
+                    );
+                  }}
+                  multiline
+                  numberOfLines={5}
+                  textAlignVertical="top"
+                  autoGrow
+                  autoGrowMinHeight={128}
+                  inputClassName="py-3"
+                />
+
+                <AppButton
+                  width="auto"
+                  variant="ghost"
+                  label={
+                    openTaskSuggestions === "immediateFailureErrors" ? "Hide suggestions" : "Show suggestions"
+                  }
+                  onPress={() =>
+                    setOpenTaskSuggestions((current) =>
+                      current === "immediateFailureErrors" ? null : "immediateFailureErrors",
+                    )
+                  }
+                />
+
+                <SuggestionsPickerModal
+                  visible={openTaskSuggestions === "immediateFailureErrors"}
+                  title="Immediate failure error suggestions"
+                  subtitle="Tap suggestions to add/remove them. Tap the handle or backdrop to dismiss."
+                  suggestions={restrictedMockTestTaskImmediateFailureErrorSuggestions}
+                  value={activeTaskState.immediateFailureErrors ?? ""}
+                  selectedVariant="danger"
+                  onChangeValue={(next) => {
+                    const stageId = activeTask.stageId;
+                    const taskId = activeTask.taskId;
+                    setStagesState((prev) =>
+                      updateTaskState(prev, stageId, taskId, (task) => ({
+                        ...task,
+                        immediateFailureErrors: next,
+                      })),
+                    );
+                  }}
+                  onClose={() => setOpenTaskSuggestions(null)}
+                />
+
+              </AppStack>
+            </ScrollView>
+          </>
+        ) : (
+          <AppStack gap="sm">
+            <AppText className="!text-[22px]" variant="heading">
+              No task selected
+            </AppText>
+          </AppStack>
+        )}
+      </AppBottomSheetModal>
 
       <Modal
         visible={startTestModalVisible}
@@ -1796,6 +1669,7 @@ export function RestrictedMockTestScreen({ navigation, route }: Props) {
                   onPress={() => {
                     setStartTestModalVisible(false);
                     setStage("test");
+                    setOpenSection("stage1");
                     scrollToTop(false);
                   }}
                 />

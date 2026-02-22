@@ -367,7 +367,12 @@ export function SessionsListScreen({ navigation }: Props) {
                 </AppText>
               ) : null}
 
-              <ScrollView keyboardShouldPersistTaps="handled" contentContainerClassName="gap-4 pb-1">
+              <ScrollView
+                keyboardShouldPersistTaps="handled"
+                contentContainerClassName="gap-4 pb-1"
+                showsVerticalScrollIndicator={false}
+                showsHorizontalScrollIndicator={false}
+              >
                 <AppStack gap="sm">
                   <AppText variant="label">Student</AppText>
                   {studentsQuery.isPending ? (

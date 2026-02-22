@@ -1087,6 +1087,7 @@ export function StudentDetailScreen({ navigation, route }: Props) {
                 horizontal
                 pagingEnabled
                 showsHorizontalScrollIndicator={false}
+                showsVerticalScrollIndicator={false}
                 nestedScrollEnabled
                 keyboardShouldPersistTaps="handled"
                 onMomentumScrollEnd={(event) => {

@@ -113,6 +113,8 @@ export function Screen({
             keyboardShouldPersistTaps="handled"
             keyboardDismissMode={Platform.OS === "ios" ? "interactive" : "on-drag"}
             automaticallyAdjustKeyboardInsets={Platform.OS === "ios" && keyboardAwareEnabled}
+            showsVerticalScrollIndicator={false}
+            showsHorizontalScrollIndicator={false}
             contentContainerClassName={theme.screen.scrollContent}
             onScroll={keyboardAwareEnabled ? onScroll : undefined}
             scrollEventThrottle={keyboardAwareEnabled ? 16 : undefined}

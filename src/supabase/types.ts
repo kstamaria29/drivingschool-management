@@ -18,17 +18,20 @@ export type Database = {
         Row: {
           id: string;
           name: string;
+          email: string | null;
           timezone: string;
           created_at: string;
         };
         Insert: {
           id?: string;
           name: string;
+          email?: string | null;
           timezone?: string;
           created_at?: string;
         };
         Update: {
           name?: string;
+          email?: string | null;
           timezone?: string;
           created_at?: string;
         };

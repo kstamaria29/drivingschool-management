@@ -9,6 +9,7 @@ import {
   type ListAssessmentsInput,
   type ListRecentAssessmentsInput,
 } from "./api";
+import { sendAssessmentEmail, type SendAssessmentEmailInput } from "./email-assessment";
 
 export const assessmentKeys = {
   list: (input: ListAssessmentsInput) => ["assessments", input] as const,
@@ -48,5 +49,11 @@ export function useDeleteAssessmentMutation() {
     onSuccess: async () => {
       await queryClient.invalidateQueries({ queryKey: ["assessments"] });
     },
+  });
+}
+
+export function useSendAssessmentEmailMutation() {
+  return useMutation({
+    mutationFn: (input: SendAssessmentEmailInput) => sendAssessmentEmail(input),
   });
 }

@@ -27,6 +27,7 @@ type Props = Omit<PressableProps, "children"> & {
   badgePosition?: AppButtonBadgePosition;
   renderIcon?: (input: { size: number; color: string; strokeWidth: number }) => ReactNode;
   labelClassName?: string;
+  contentClassName?: string;
 };
 
 export function AppButton({
@@ -43,6 +44,7 @@ export function AppButton({
   badgePosition = "icon",
   renderIcon,
   labelClassName,
+  contentClassName,
   className,
   disabled,
   ...props
@@ -129,6 +131,7 @@ export function AppButton({
           "flex-row items-center justify-center",
           size === "icon" && "h-full w-full",
           showContentGap && "gap-2",
+          contentClassName,
         )}
       >
         {iconPosition === "left" ? iconWithBadge : null}

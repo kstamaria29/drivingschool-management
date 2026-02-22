@@ -45,6 +45,7 @@ export function HeaderLeftMenuWithBack({ showBack = true }: HeaderLeftMenuWithBa
   const navigation = useNavigation<NavigationProp<ParamListBase>>();
   const { isSidebar, isTablet } = useNavigationLayout();
   const { colorScheme } = useColorScheme();
+  const canGoBack = navigation.canGoBack();
   const isTabletPortrait = isTablet && !isSidebar;
   const buttonSize = isTabletPortrait ? 48 : 44;
   const iconSize = isTabletPortrait ? 26 : 24;
@@ -60,10 +61,15 @@ export function HeaderLeftMenuWithBack({ showBack = true }: HeaderLeftMenuWithBa
     parentNavigation?.navigate("Home", { screen: "HomeDashboard" });
   }
 
+  const showHamburger = !isSidebar && !canGoBack;
+  const showBackButton = showBack && canGoBack;
+
+  if (!showHamburger && !showBackButton) return null;
+
   return (
     <View className="flex-row items-center gap-2">
-      {!isSidebar ? <HeaderLeftHamburger /> : null}
-      {showBack ? (
+      {showHamburger ? <HeaderLeftHamburger /> : null}
+      {showBackButton ? (
         <Pressable
           accessibilityRole="button"
           accessibilityLabel="Go back"

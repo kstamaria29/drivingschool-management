@@ -182,6 +182,8 @@ export function AssessmentStudentDropdown({
               style={{ maxHeight: MAX_VISIBLE_STUDENT_ROWS * STUDENT_ROW_HEIGHT }}
               nestedScrollEnabled
               keyboardShouldPersistTaps="handled"
+              showsVerticalScrollIndicator={false}
+              showsHorizontalScrollIndicator={false}
             >
               <AppStack gap="sm">
                 {filteredStudents.map((student) => {

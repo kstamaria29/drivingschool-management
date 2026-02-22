@@ -406,7 +406,11 @@ export function WeatherWidget() {
             {nextFiveHours.length > 0 ? (
               <View className="gap-2">
                 <AppText variant="label">Next 5 hours</AppText>
-                <ScrollView horizontal showsHorizontalScrollIndicator={false}>
+                <ScrollView
+                  horizontal
+                  showsHorizontalScrollIndicator={false}
+                  showsVerticalScrollIndicator={false}
+                >
                   <View className="flex-row gap-2">
                     {nextFiveHours.map((hour) => (
                       <View

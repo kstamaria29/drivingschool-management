@@ -345,7 +345,13 @@ export function LessonsListScreen({ navigation }: Props) {
           </AppText>
         </AppStack>
       ) : (
-        <ScrollView className="flex-1" keyboardShouldPersistTaps="handled" contentContainerClassName="gap-3 pb-2">
+        <ScrollView
+          className="flex-1"
+          keyboardShouldPersistTaps="handled"
+          contentContainerClassName="gap-3 pb-2"
+          showsVerticalScrollIndicator={false}
+          showsHorizontalScrollIndicator={false}
+        >
           <AppText variant="heading">Lessons</AppText>
           {!hasLessons ? <AppText variant="caption">No lessons scheduled.</AppText> : null}
           {lessonCards}

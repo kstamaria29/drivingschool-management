@@ -164,7 +164,9 @@ function FeedbackField({
           multiline
           numberOfLines={5}
           textAlignVertical="top"
-          inputClassName="h-32 py-3"
+          autoGrow
+          autoGrowMinHeight={128}
+          inputClassName="py-3"
           value={value}
           onChangeText={onChangeText}
         />
@@ -533,6 +535,8 @@ export function DrivingAssessmentScreen({ navigation, route }: Props) {
       <ScrollView
         ref={scrollRef}
         contentContainerClassName={isCompact ? "gap-3 pb-6" : "gap-4 pb-6"}
+        showsVerticalScrollIndicator={false}
+        showsHorizontalScrollIndicator={false}
       >
         <AppStack gap={isCompact ? "md" : "lg"}>
           <View>
