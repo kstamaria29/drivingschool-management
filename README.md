@@ -13,32 +13,9 @@ Out of scope in this repo task: Google Calendar sync.
 ## 2) Create Supabase project
 
 1. Create a new Supabase project.
-2. In the Supabase Dashboard, go to `SQL Editor` and run:
-   - `supabase/migrations/001_auth_onboarding.sql`
-   - `supabase/migrations/002_fix_profiles_rls.sql`
-   - `supabase/migrations/003_students.sql`
-   - `supabase/migrations/004_lessons.sql`
-   - `supabase/migrations/005_profile_avatars.sql`
-   - `supabase/migrations/006_assessments.sql`
-   - `supabase/migrations/007_assessments_delete.sql`
-   - `supabase/migrations/008_student_sessions.sql`
-   - `supabase/migrations/009_account_settings.sql`
-   - `supabase/migrations/010_admin_role.sql`
-   - `supabase/migrations/011_students_lessons_delete_policies.sql`
-   - `supabase/migrations/012_map_pins.sql`
-   - `supabase/migrations/013_map_annotations.sql`
-3. Create the Storage bucket:
-   - Go to `Storage` -> `New bucket`
-   - Name: `org-logos`
-   - Keep it `private`
-4. Create the Storage bucket:
-   - Go to `Storage` -> `New bucket`
-   - Name: `avatars`
-   - Keep it `private`
-5. In `SQL Editor`, run the storage policies:
-   - `supabase/storage/org-logos.sql`
-   - `supabase/storage/avatars.sql`
-6. Get your API keys:
+2. In the Supabase Dashboard, go to `SQL Editor` and run migrations in order (see `supabase/README.md`).
+3. Create the required Storage buckets + apply policies (see `supabase/README.md`).
+4. Get your API keys:
    - Go to `Project Settings` -> `API`
    - Copy the `Project URL`
    - Copy the `anon` key
@@ -102,3 +79,7 @@ Then press `a` for Android (or scan the QR code with Expo Go).
 ## 7) Repo notes
 
 - Screens do not call Supabase directly; they use `features/*/api.ts` + React Query hooks.
+
+## 8) Email student (assessment PDFs)
+
+Step-by-step setup (Resend + Supabase Edge Function): `docs/email-student-setup.md`

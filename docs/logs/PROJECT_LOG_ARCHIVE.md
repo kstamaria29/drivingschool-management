@@ -1655,3 +1655,11 @@
   - Reduced whitespace with a two-column layout: title + enable on the left, sound/vibration controls right-aligned on the right.
 
 ---
+
+- **Date:** 2026-02-21 (Pacific/Auckland)
+- **Task:** Notifications settings simplify toggles
+- **Summary:**
+  - Simplified notification category settings to On/Off segmented controls only (removed Sound/Vibration UI and defaulted both to On when enabled).
+  - Disabling Downloads/Student reminders now prevents local notifications and clears scheduled reminder alerts on the device.
+
+---

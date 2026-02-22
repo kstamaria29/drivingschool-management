@@ -1,6 +1,14 @@
 # PROJECT_LOG.md
 
 - **Date:** 2026-02-22 (Pacific/Auckland)
+- **Task:** Email student for mock tests
+- **Summary:**
+  - Added the "Email student" action to Restricted and Full mock test history detail views.
+  - Disabled Download/Email/Delete actions consistently while emailing.
+
+---
+
+- **Date:** 2026-02-22 (Pacific/Auckland)
 - **Task:** Assessment email error messaging
 - **Summary:**
   - Surfaced Resend error messages in the Edge Function response for easier diagnosis.
@@ -146,11 +154,3 @@
 - **Summary:**
   - Removed the extra gap between section titles and captions and ensured Upcoming lessons defaults to a 1-hour notify offset.
   - Made the push "Register this device" button green when this device is not registered and disabled it when already registered.
-
----
-
-- **Date:** 2026-02-21 (Pacific/Auckland)
-- **Task:** Notifications settings simplify toggles
-- **Summary:**
-  - Simplified notification category settings to On/Off segmented controls only (removed Sound/Vibration UI and defaulted both to On when enabled).
-  - Disabling Downloads/Student reminders now prevents local notifications and clears scheduled reminder alerts on the device.
