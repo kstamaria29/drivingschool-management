@@ -1702,3 +1702,18 @@
   - Adjusted Restricted PDF layout so feedback stays on page 1 and Stage 1/2 start on page 2.
 
 ---
+
+- **Date:** 2026-02-21 (Pacific/Auckland)
+- **Task:** Restricted history feedback ordering
+- **Summary:**
+  - Moved General feedback + Improvement(s) needed cards to sit directly under Overview for restricted mock tests.
+
+---
+
+- **Date:** 2026-02-21 (Pacific/Auckland)
+- **Task:** Lessons: student picker + location display
+- **Summary:**
+  - Moved the Student block above date/time/duration and reused the assessment-style student dropdown search.
+  - Removed Status + Location inputs; now shows Location from the selected student address and updated lesson cards accordingly.
+
+---

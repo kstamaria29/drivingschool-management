@@ -13,6 +13,7 @@ import {
   View,
   useColorScheme,
 } from "react-native";
+import { SafeAreaView } from "react-native-safe-area-context";
 import {
   Archive,
   Bell,
@@ -1057,81 +1058,83 @@ export function StudentDetailScreen({ navigation, route }: Props) {
         onRequestClose={() => setLicenseGalleryVisible(false)}
       >
         <Pressable
-          className="flex-1 bg-black/90 px-4 py-8"
+          className="flex-1 bg-black/90"
           onPress={() => setLicenseGalleryVisible(false)}
         >
-          <Pressable
-            className="flex-1"
-            onPress={(event) => event.stopPropagation()}
-          >
-            <View className="flex-row items-center justify-between gap-2">
-              <AppText className="text-primaryForeground" variant="body">
-                {activeLicenseImage
-                  ? `${activeLicenseImage.label} (${licenseGalleryIndex + 1}/${licenseImages.length})`
-                  : ""}
-              </AppText>
-              <AppButton
-                width="auto"
-                variant="secondary"
-                label="Close"
-                onPress={() => setLicenseGalleryVisible(false)}
-              />
-            </View>
-
-            <View
-              className="flex-1 items-center justify-center"
-              onLayout={(event) => setLicenseGalleryWidth(event.nativeEvent.layout.width)}
+          <SafeAreaView edges={["top", "bottom"]} className="flex-1 px-4 py-8">
+            <Pressable
+              className="flex-1"
+              onPress={(event) => event.stopPropagation()}
             >
-              <ScrollView
-                ref={licenseGalleryScrollRef}
-                horizontal
-                pagingEnabled
-                showsHorizontalScrollIndicator={false}
-                showsVerticalScrollIndicator={false}
-                nestedScrollEnabled
-                keyboardShouldPersistTaps="handled"
-                onMomentumScrollEnd={(event) => {
-                  if (licenseGalleryWidth <= 0) return;
-                  const nextIndex = Math.round(event.nativeEvent.contentOffset.x / licenseGalleryWidth);
-                  const clamped = Math.max(0, Math.min(nextIndex, licenseImages.length - 1));
-                  if (clamped !== licenseGalleryIndex) setLicenseGalleryIndex(clamped);
-                }}
-              >
-                {licenseImages.map((image) => (
-                  <View
-                    key={image.key}
-                    style={{ width: licenseGalleryWidth }}
-                    className="flex-1 items-center justify-center"
-                  >
-                    <AppImage
-                      source={{ uri: image.uri }}
-                      resizeMode="contain"
-                      className="h-full w-full"
-                    />
-                  </View>
-                ))}
-              </ScrollView>
-            </View>
+              <View className="flex-row items-center justify-between gap-2">
+                <AppText className="text-primaryForeground" variant="body">
+                  {activeLicenseImage
+                    ? `${activeLicenseImage.label} (${licenseGalleryIndex + 1}/${licenseImages.length})`
+                    : ""}
+                </AppText>
+                <AppButton
+                  width="auto"
+                  variant="secondary"
+                  label="Close"
+                  onPress={() => setLicenseGalleryVisible(false)}
+                />
+              </View>
 
-            <View className="flex-row gap-2">
-              <AppButton
-                className="flex-1"
-                width="auto"
-                variant="secondary"
-                label="Previous"
-                disabled={licenseImages.length <= 1}
-                onPress={showPreviousLicenseImage}
-              />
-              <AppButton
-                className="flex-1"
-                width="auto"
-                variant="secondary"
-                label="Next"
-                disabled={licenseImages.length <= 1}
-                onPress={showNextLicenseImage}
-              />
-            </View>
-          </Pressable>
+              <View
+                className="flex-1 items-center justify-center"
+                onLayout={(event) => setLicenseGalleryWidth(event.nativeEvent.layout.width)}
+              >
+                <ScrollView
+                  ref={licenseGalleryScrollRef}
+                  horizontal
+                  pagingEnabled
+                  showsHorizontalScrollIndicator={false}
+                  showsVerticalScrollIndicator={false}
+                  nestedScrollEnabled
+                  keyboardShouldPersistTaps="handled"
+                  onMomentumScrollEnd={(event) => {
+                    if (licenseGalleryWidth <= 0) return;
+                    const nextIndex = Math.round(event.nativeEvent.contentOffset.x / licenseGalleryWidth);
+                    const clamped = Math.max(0, Math.min(nextIndex, licenseImages.length - 1));
+                    if (clamped !== licenseGalleryIndex) setLicenseGalleryIndex(clamped);
+                  }}
+                >
+                  {licenseImages.map((image) => (
+                    <View
+                      key={image.key}
+                      style={{ width: licenseGalleryWidth }}
+                      className="flex-1 items-center justify-center"
+                    >
+                      <AppImage
+                        source={{ uri: image.uri }}
+                        resizeMode="contain"
+                        className="h-full w-full"
+                      />
+                    </View>
+                  ))}
+                </ScrollView>
+              </View>
+
+              <View className="flex-row gap-2">
+                <AppButton
+                  className="flex-1"
+                  width="auto"
+                  variant="secondary"
+                  label="Previous"
+                  disabled={licenseImages.length <= 1}
+                  onPress={showPreviousLicenseImage}
+                />
+                <AppButton
+                  className="flex-1"
+                  width="auto"
+                  variant="secondary"
+                  label="Next"
+                  disabled={licenseImages.length <= 1}
+                  onPress={showNextLicenseImage}
+                />
+              </View>
+            </Pressable>
+          </SafeAreaView>
         </Pressable>
       </Modal>
     </>

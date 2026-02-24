@@ -1,5 +1,21 @@
 # PROJECT_LOG.md
 
+- **Date:** 2026-02-24 (Pacific/Auckland)
+- **Task:** Daily digest reliability
+- **Summary:**
+  - Prevented daily digest push bodies from falling back to "No lessons scheduled today" when the lesson lookup RPC fails.
+  - Avoided inserting digest deliveries on lookup failure so the next cron run can retry.
+
+---
+
+- **Date:** 2026-02-23 (Pacific/Auckland)
+- **Task:** Safe area for bottom overlays
+- **Summary:**
+  - Added safe-area bottom padding to the shared bottom sheet modal so content won't sit under the system navigation bar.
+  - Made the licence image gallery modal respect system insets.
+
+---
+
 - **Date:** 2026-02-23 (Pacific/Auckland)
 - **Task:** Supabase cron setup docs
 - **Summary:**
@@ -139,18 +155,3 @@
 - **Summary:**
   - Rendered selected student address directly under the student picker and increased selected student name emphasis.
   - Moved Start time + Duration into a 2-column row for faster scheduling.
-
----
-
-- **Date:** 2026-02-21 (Pacific/Auckland)
-- **Task:** Lessons: student picker + location display
-- **Summary:**
-  - Moved the Student block above date/time/duration and reused the assessment-style student dropdown search.
-  - Removed Status + Location inputs; now shows Location from the selected student address and updated lesson cards accordingly.
-
----
-
-- **Date:** 2026-02-21 (Pacific/Auckland)
-- **Task:** Restricted history feedback ordering
-- **Summary:**
-  - Moved General feedback + Improvement(s) needed cards to sit directly under Overview for restricted mock tests.
