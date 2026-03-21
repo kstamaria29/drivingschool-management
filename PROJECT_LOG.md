@@ -1,5 +1,99 @@
 # PROJECT_LOG.md
 
+- **Date:** 2026-03-21 (Pacific/Auckland)
+- **Task:** Assessment keyboard avoidance
+- **Summary:**
+  - Added `KeyboardAvoidingView`-based keyboard handling to the Restricted and Driving assessment scroll areas so lower feedback fields stay reachable while typing.
+  - Enabled shared keyboard avoidance for the Full License mock test and added a reusable keyboard-aware scroll hook for assessment forms.
+
+---
+
+- **Date:** 2026-03-21 (Pacific/Auckland)
+- **Task:** Restricted Stage 1 task additions
+- **Summary:**
+  - Added `Right turn across 1 lane oncoming` and `Left turn with priority` to Stage 1 of the Restricted mock test with 10-rep targets.
+  - Kept the shared task definitions aligned so the screen, generated PDF, and student assessment history use the same updated Stage 1 order.
+
+---
+
+- **Date:** 2026-03-21 (Pacific/Auckland)
+- **Task:** Student declaration warning styling
+- **Summary:**
+  - Made the add-student declaration warning render in bold red text.
+  - Changed the Add student button to the grey secondary style until Declaration is checked.
+
+---
+
+- **Date:** 2026-03-21 (Pacific/Auckland)
+- **Task:** Require declaration on new students only
+- **Summary:**
+  - Made the Declaration checkbox mandatory only when adding a new student, without blocking edits to older student records.
+  - Hid the permission/declaration blocks on student profile pages unless the student was created with the new declaration flow.
+
+---
+
+- **Date:** 2026-03-21 (Pacific/Auckland)
+- **Task:** Make learner type multi-select
+- **Summary:**
+  - Changed the student learner-type field to support multiple selections in the form and profile display.
+  - Updated pending migration `024` to store learner types as a text array before it is applied to Supabase.
+
+---
+
+- **Date:** 2026-03-21 (Pacific/Auckland)
+- **Task:** Fix declaration full name source
+- **Summary:**
+  - Changed the declaration name display to use the student's entered first and last name instead of the logged-in user.
+  - Removed the pending `declaration_full_name` column from migration `024` before it is applied to Supabase.
+
+---
+
+- **Date:** 2026-03-21 (Pacific/Auckland)
+- **Task:** Add student learner type + permissions
+- **Summary:**
+  - Added learner type, photo/video release, and declaration fields to the shared New/Edit student flow.
+  - Persisted the new student fields through Supabase and displayed them on the student profile screen.
+
+---
+
+- **Date:** 2026-03-21 (Pacific/Auckland)
+- **Task:** Show global AGENTS guide
+- **Summary:**
+  - Retrieved the shared global `AGENTS.md` from the Codex home directory so it could be shown directly for reference.
+
+---
+
+- **Date:** 2026-02-24 (Pacific/Auckland)
+- **Task:** Daily digest lesson lookup
+- **Summary:**
+  - Fixed `get_lessons_for_local_date` to join through `notification_settings` so daily digests use the same org-scoped lesson selection as upcoming reminders.
+
+---
+
+- **Date:** 2026-02-24 (Pacific/Auckland)
+- **Task:** Daily digest reliability
+- **Summary:**
+  - Prevented daily digest push bodies from falling back to "No lessons scheduled today" when the lesson lookup RPC fails.
+  - Avoided inserting digest deliveries on lookup failure so the next cron run can retry.
+
+---
+
+- **Date:** 2026-02-23 (Pacific/Auckland)
+- **Task:** Safe area for bottom overlays
+- **Summary:**
+  - Added safe-area bottom padding to the shared bottom sheet modal so content won't sit under the system navigation bar.
+  - Made the licence image gallery modal respect system insets.
+
+---
+
+- **Date:** 2026-02-23 (Pacific/Auckland)
+- **Task:** Supabase cron setup docs
+- **Summary:**
+  - Documented enabling `pg_cron` + `pg_net` for scheduled Edge Function delivery.
+  - Added sample SQL for scheduling `notifications-cron` every 5 minutes and verifying runs.
+
+---
+
 - **Date:** 2026-02-22 (Pacific/Auckland)
 - **Task:** Navbar hamburger buttons
 - **Summary:**
@@ -60,97 +154,3 @@
 - **Summary:**
   - Added organization email field + edit screen in Settings.
   - Displayed the org email in the Organization block and added a "Change organization email" action.
-
----
-
-- **Date:** 2026-02-22 (Pacific/Auckland)
-- **Task:** Restricted PDF stage pagination
-- **Summary:**
-  - Hid Stage 2 section/details in the PDF when Stage 2 was not enabled.
-  - Forced Stage 2 (when enabled) to start on a new PDF page.
-
----
-
-- **Date:** 2026-02-22 (Pacific/Auckland)
-- **Task:** Suggestions: blue subheadings + auto-grow inputs
-- **Summary:**
-  - Updated suggestion modal category labels to use blue styling.
-  - Made suggestion-linked multiline inputs auto-expand to fit content (no internal scrolling).
-
----
-
-- **Date:** 2026-02-22 (Pacific/Auckland)
-- **Task:** Bottom sheet spacing + scrollbars
-- **Summary:**
-  - Restored the previous bottom sheet top padding and added extra spacing between the handle and content.
-  - Underlined suggestion subheadings, fixed long suggestions scrolling, and hid scroll indicators across the app.
-
----
-
-- **Date:** 2026-02-22 (Pacific/Auckland)
-- **Task:** Bottom sheet + navbar polish
-- **Summary:**
-  - Standardized bottom sheet padding/typography (bigger headings, bolder category labels, left-aligned suggestion options).
-  - Updated header buttons so drawer root screens show hamburger only, and all other screens show back only (no navbar titles).
-
----
-
-- **Date:** 2026-02-22 (Pacific/Auckland)
-- **Task:** Restricted suggestions bottom sheet
-- **Summary:**
-  - Switched the suggestions picker (task errors + feedback) to the same bottom-sheet pattern as the task repetition modal.
-  - Updated suggestions helper copy to reflect handle/backdrop dismissal.
-
----
-
-- **Date:** 2026-02-22 (Pacific/Auckland)
-- **Task:** Restricted task modal bottom sheet
-- **Summary:**
-  - Converted the task repetition modal into an animated bottom sheet with a handle (drag or tap to expand/collapse, tap backdrop to dismiss).
-  - Matched the modal padding to the main screen container paddings.
-
----
-
-- **Date:** 2026-02-22 (Pacific/Auckland)
-- **Task:** Restricted mock test UX refinements
-- **Summary:**
-  - Defaulted pre-drive Time to current time, removed the optional label, and auto-expanded Stage 1 when starting/resuming.
-  - Moved error/feedback suggestions into a dedicated modal and persisted in-progress task repetition selections with dynamic modal height.
-
----
-
-- **Date:** 2026-02-21 (Pacific/Auckland)
-- **Task:** Lessons address label + size
-- **Summary:**
-  - Removed the Location label and bumped address text size on New Lesson and Lessons list.
-
----
-
-- **Date:** 2026-02-21 (Pacific/Auckland)
-- **Task:** New lesson layout refinements
-- **Summary:**
-  - Rendered selected student address directly under the student picker and increased selected student name emphasis.
-  - Moved Start time + Duration into a 2-column row for faster scheduling.
-
----
-
-- **Date:** 2026-02-21 (Pacific/Auckland)
-- **Task:** Lessons: student picker + location display
-- **Summary:**
-  - Moved the Student block above date/time/duration and reused the assessment-style student dropdown search.
-  - Removed Status + Location inputs; now shows Location from the selected student address and updated lesson cards accordingly.
-
----
-
-- **Date:** 2026-02-21 (Pacific/Auckland)
-- **Task:** Restricted history feedback ordering
-- **Summary:**
-  - Moved General feedback + Improvement(s) needed cards to sit directly under Overview for restricted mock tests.
-
----
-
-- **Date:** 2026-02-21 (Pacific/Auckland)
-- **Task:** Restricted mock test PDF page break + suggestion auto-open
-- **Summary:**
-  - Auto-opened suggestions when tapping into task errors and feedback textboxes, and renamed Improvement needed to Improvement(s) needed across UI/history/PDF.
-  - Adjusted Restricted PDF layout so feedback stays on page 1 and Stage 1/2 start on page 2.

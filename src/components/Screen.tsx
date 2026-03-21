@@ -1,19 +1,16 @@
-import { useEffect, useRef, type PropsWithChildren, type RefObject } from "react";
+import { useRef, type PropsWithChildren, type RefObject } from "react";
 import {
-  Keyboard,
   KeyboardAvoidingView,
   Platform,
   ScrollView,
-  TextInput,
   useWindowDimensions,
   View,
   type ScrollViewProps,
-  type NativeScrollEvent,
-  type NativeSyntheticEvent,
   type ViewProps,
 } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 
+import { useKeyboardAwareScroll } from "../navigation/useKeyboardAwareScroll";
 import { theme } from "../theme/theme";
 import { cn } from "../utils/cn";
 import { ThemedBackdrop } from "./ThemedBackdrop";
@@ -23,6 +20,8 @@ type Props = PropsWithChildren<ViewProps> & {
   scrollRef?: RefObject<ScrollView | null>;
   scrollViewProps?: Omit<ScrollViewProps, "ref" | "children">;
   outerProps?: Omit<ViewProps, "children"> & { className?: string };
+  keyboardAvoidingEnabled?: boolean;
+  keyboardVerticalOffset?: number;
 };
 
 const TABLET_MIN_WIDTH = 600;
@@ -32,6 +31,8 @@ export function Screen({
   scrollRef: externalScrollRef,
   scrollViewProps,
   outerProps,
+  keyboardAvoidingEnabled,
+  keyboardVerticalOffset = 0,
   className,
   children,
   ...props
@@ -40,46 +41,16 @@ export function Screen({
   const minDimension = Math.min(width, height);
   const internalScrollRef = useRef<ScrollView>(null);
   const scrollRef = externalScrollRef ?? internalScrollRef;
-  const scrollOffsetYRef = useRef(0);
   const isCompact = minDimension < TABLET_MIN_WIDTH;
   const isTabletPortrait = minDimension >= TABLET_MIN_WIDTH && height > width;
   const isTabletLandscape = minDimension >= TABLET_MIN_WIDTH && width > height;
-  const keyboardAvoidingEnabled = isTabletPortrait;
-  const keyboardAwareEnabled = scroll && keyboardAvoidingEnabled;
-
-  useEffect(() => {
-    if (!keyboardAwareEnabled) return;
-
-    const showEvent = Platform.OS === "ios" ? "keyboardWillShow" : "keyboardDidShow";
-    const subscription = Keyboard.addListener(showEvent, (event) => {
-      const focusedInput = TextInput.State.currentlyFocusedInput?.();
-      if (!focusedInput || typeof focusedInput.measureInWindow !== "function") {
-        return;
-      }
-
-      focusedInput.measureInWindow((_x, y, _w, inputHeight) => {
-        const keyboardTop = event.endCoordinates.screenY;
-        const inputBottom = y + inputHeight;
-        const isInBottomHalf = y >= height / 2;
-        const overlap = inputBottom - keyboardTop;
-
-        if (!isInBottomHalf || overlap <= 0) return;
-
-        scrollRef.current?.scrollTo({
-          y: Math.max(0, scrollOffsetYRef.current + overlap + 24),
-          animated: true,
-        });
-      });
-    });
-
-    return () => {
-      subscription.remove();
-    };
-  }, [height, keyboardAwareEnabled]);
-
-  function onScroll(event: NativeSyntheticEvent<NativeScrollEvent>) {
-    scrollOffsetYRef.current = event.nativeEvent.contentOffset.y;
-  }
+  const resolvedKeyboardAvoidingEnabled = keyboardAvoidingEnabled ?? isTabletPortrait;
+  const keyboardAwareEnabled = scroll && resolvedKeyboardAvoidingEnabled;
+  const { onScroll, scrollEventThrottle } = useKeyboardAwareScroll({
+    enabled: keyboardAwareEnabled,
+    height,
+    scrollRef,
+  });
 
   const content = (
     <View
@@ -103,7 +74,8 @@ export function Screen({
       <KeyboardAvoidingView
         className="flex-1"
         behavior={Platform.OS === "ios" ? "padding" : "height"}
-        enabled={keyboardAvoidingEnabled}
+        enabled={resolvedKeyboardAvoidingEnabled}
+        keyboardVerticalOffset={keyboardVerticalOffset}
         {...outerViewProps}
       >
         {scroll ? (
@@ -116,8 +88,8 @@ export function Screen({
             showsVerticalScrollIndicator={false}
             showsHorizontalScrollIndicator={false}
             contentContainerClassName={theme.screen.scrollContent}
-            onScroll={keyboardAwareEnabled ? onScroll : undefined}
-            scrollEventThrottle={keyboardAwareEnabled ? 16 : undefined}
+            onScroll={onScroll}
+            scrollEventThrottle={scrollEventThrottle}
           >
             {content}
           </ScrollView>

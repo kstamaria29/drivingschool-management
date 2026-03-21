@@ -11,6 +11,7 @@ import {
   View,
   type LayoutChangeEvent,
 } from "react-native";
+import { SafeAreaView } from "react-native-safe-area-context";
 
 import { cn } from "../utils/cn";
 
@@ -187,7 +188,8 @@ export function AppBottomSheetModal({
           )}
           style={[{ maxHeight: maxSheetHeight, transform: [{ translateY }] }]}
         >
-          <View
+          <SafeAreaView
+            edges={["bottom"]}
             className={cn(
               "w-full max-w-[720px] self-center",
               isCompact ? "px-4 pt-4 pb-6" : "px-6 pt-6 pb-8",
@@ -212,7 +214,7 @@ export function AppBottomSheetModal({
             <View className={cn(isCompact ? "mt-5" : "mt-6")}>
               <AppButton label="Close" icon={X} onPress={onRequestClose} />
             </View>
-          </View>
+          </SafeAreaView>
         </Animated.View>
       </View>
     </Modal>

@@ -13,6 +13,7 @@ import {
   View,
   useColorScheme,
 } from "react-native";
+import { SafeAreaView } from "react-native-safe-area-context";
 import {
   Archive,
   Bell,
@@ -31,13 +32,22 @@ import {
 
 import { AppButton } from "../../components/AppButton";
 import { AppCard } from "../../components/AppCard";
+import { AppCheckbox } from "../../components/AppCheckbox";
 import { AppImage } from "../../components/AppImage";
 import { AppStack } from "../../components/AppStack";
 import { AppText } from "../../components/AppText";
 import { Screen } from "../../components/Screen";
 import { useAssessmentsQuery } from "../../features/assessments/queries";
+import { useOrganizationQuery } from "../../features/organization/queries";
 import { useStudentRemindersQuery } from "../../features/reminders/queries";
 import { useStudentSessionsQuery } from "../../features/sessions/queries";
+import {
+  getStudentLearnerTypesLabel,
+  getStudentPhotoVideoReleaseLiabilityText,
+  getStudentPhotoVideoReleasePermissionText,
+  getStudentReleaseOrganizationName,
+  STUDENT_DECLARATION_COPY,
+} from "../../features/students/constants";
 import {
   useArchiveStudentMutation,
   useDeleteStudentMutation,
@@ -196,6 +206,7 @@ export function StudentDetailScreen({ navigation, route }: Props) {
       : theme.colors.foregroundLight;
 
   const query = useStudentQuery(studentId);
+  const organizationQuery = useOrganizationQuery(query.data?.organization_id);
   const sessionsQuery = useStudentSessionsQuery({ studentId });
   const assessmentsQuery = useAssessmentsQuery({ studentId });
   const remindersQuery = useStudentRemindersQuery({ studentId });
@@ -206,6 +217,14 @@ export function StudentDetailScreen({ navigation, route }: Props) {
   const removeLicenseImageMutation = useRemoveStudentLicenseImageMutation();
 
   const student = query.data ?? null;
+  const releaseOrganizationName = getStudentReleaseOrganizationName(
+    organizationQuery.data?.name,
+  );
+  const photoVideoReleasePermissionText =
+    getStudentPhotoVideoReleasePermissionText(releaseOrganizationName);
+  const photoVideoReleaseLiabilityText =
+    getStudentPhotoVideoReleaseLiabilityText(releaseOrganizationName);
+  const showConsentSections = Boolean(student?.declaration_confirmed);
   const isArchived = Boolean(student?.archived_at);
   const notes = student?.notes?.trim() ? student.notes.trim() : "";
   const sessionCount = sessionsQuery.data?.length ?? 0;
@@ -633,6 +652,12 @@ export function StudentDetailScreen({ navigation, route }: Props) {
                       label="Address"
                       value={student.address?.trim() ? student.address : "-"}
                     />
+
+                    <DetailValueField
+                      className="w-full"
+                      label="Type of learner"
+                      value={getStudentLearnerTypesLabel(student.learner_types)}
+                    />
                   </AppCard>
 
                 <AppCard className="gap-3">
@@ -787,6 +812,40 @@ export function StudentDetailScreen({ navigation, route }: Props) {
                   <AppCard className="gap-2">
                     <AppText variant="heading">Notes</AppText>
                     <AppText variant="body">{notes}</AppText>
+                  </AppCard>
+                ) : null}
+
+                {showConsentSections ? (
+                  <AppCard className="gap-3">
+                    <AppText variant="heading">
+                      Photo and Video Release Permission
+                    </AppText>
+                    <AppCheckbox
+                      readOnly
+                      checked={student.photo_video_release_consent}
+                      label={photoVideoReleasePermissionText}
+                    />
+                    <AppCheckbox
+                      readOnly
+                      checked={student.photo_video_release_liability_waiver}
+                      label={photoVideoReleaseLiabilityText}
+                    />
+                  </AppCard>
+                ) : null}
+
+                {showConsentSections ? (
+                  <AppCard className="gap-3">
+                    <AppText variant="heading">Declaration</AppText>
+                    <AppCheckbox
+                      readOnly
+                      checked={student.declaration_confirmed}
+                      label={STUDENT_DECLARATION_COPY}
+                    />
+                    <DetailValueField
+                      className="w-full"
+                      label="Full name"
+                      value={`${student.first_name} ${student.last_name}`.trim() || "-"}
+                    />
                   </AppCard>
                 ) : null}
                 </AppStack>
@@ -1057,81 +1116,83 @@ export function StudentDetailScreen({ navigation, route }: Props) {
         onRequestClose={() => setLicenseGalleryVisible(false)}
       >
         <Pressable
-          className="flex-1 bg-black/90 px-4 py-8"
+          className="flex-1 bg-black/90"
           onPress={() => setLicenseGalleryVisible(false)}
         >
-          <Pressable
-            className="flex-1"
-            onPress={(event) => event.stopPropagation()}
-          >
-            <View className="flex-row items-center justify-between gap-2">
-              <AppText className="text-primaryForeground" variant="body">
-                {activeLicenseImage
-                  ? `${activeLicenseImage.label} (${licenseGalleryIndex + 1}/${licenseImages.length})`
-                  : ""}
-              </AppText>
-              <AppButton
-                width="auto"
-                variant="secondary"
-                label="Close"
-                onPress={() => setLicenseGalleryVisible(false)}
-              />
-            </View>
-
-            <View
-              className="flex-1 items-center justify-center"
-              onLayout={(event) => setLicenseGalleryWidth(event.nativeEvent.layout.width)}
+          <SafeAreaView edges={["top", "bottom"]} className="flex-1 px-4 py-8">
+            <Pressable
+              className="flex-1"
+              onPress={(event) => event.stopPropagation()}
             >
-              <ScrollView
-                ref={licenseGalleryScrollRef}
-                horizontal
-                pagingEnabled
-                showsHorizontalScrollIndicator={false}
-                showsVerticalScrollIndicator={false}
-                nestedScrollEnabled
-                keyboardShouldPersistTaps="handled"
-                onMomentumScrollEnd={(event) => {
-                  if (licenseGalleryWidth <= 0) return;
-                  const nextIndex = Math.round(event.nativeEvent.contentOffset.x / licenseGalleryWidth);
-                  const clamped = Math.max(0, Math.min(nextIndex, licenseImages.length - 1));
-                  if (clamped !== licenseGalleryIndex) setLicenseGalleryIndex(clamped);
-                }}
-              >
-                {licenseImages.map((image) => (
-                  <View
-                    key={image.key}
-                    style={{ width: licenseGalleryWidth }}
-                    className="flex-1 items-center justify-center"
-                  >
-                    <AppImage
-                      source={{ uri: image.uri }}
-                      resizeMode="contain"
-                      className="h-full w-full"
-                    />
-                  </View>
-                ))}
-              </ScrollView>
-            </View>
+              <View className="flex-row items-center justify-between gap-2">
+                <AppText className="text-primaryForeground" variant="body">
+                  {activeLicenseImage
+                    ? `${activeLicenseImage.label} (${licenseGalleryIndex + 1}/${licenseImages.length})`
+                    : ""}
+                </AppText>
+                <AppButton
+                  width="auto"
+                  variant="secondary"
+                  label="Close"
+                  onPress={() => setLicenseGalleryVisible(false)}
+                />
+              </View>
 
-            <View className="flex-row gap-2">
-              <AppButton
-                className="flex-1"
-                width="auto"
-                variant="secondary"
-                label="Previous"
-                disabled={licenseImages.length <= 1}
-                onPress={showPreviousLicenseImage}
-              />
-              <AppButton
-                className="flex-1"
-                width="auto"
-                variant="secondary"
-                label="Next"
-                disabled={licenseImages.length <= 1}
-                onPress={showNextLicenseImage}
-              />
-            </View>
-          </Pressable>
+              <View
+                className="flex-1 items-center justify-center"
+                onLayout={(event) => setLicenseGalleryWidth(event.nativeEvent.layout.width)}
+              >
+                <ScrollView
+                  ref={licenseGalleryScrollRef}
+                  horizontal
+                  pagingEnabled
+                  showsHorizontalScrollIndicator={false}
+                  showsVerticalScrollIndicator={false}
+                  nestedScrollEnabled
+                  keyboardShouldPersistTaps="handled"
+                  onMomentumScrollEnd={(event) => {
+                    if (licenseGalleryWidth <= 0) return;
+                    const nextIndex = Math.round(event.nativeEvent.contentOffset.x / licenseGalleryWidth);
+                    const clamped = Math.max(0, Math.min(nextIndex, licenseImages.length - 1));
+                    if (clamped !== licenseGalleryIndex) setLicenseGalleryIndex(clamped);
+                  }}
+                >
+                  {licenseImages.map((image) => (
+                    <View
+                      key={image.key}
+                      style={{ width: licenseGalleryWidth }}
+                      className="flex-1 items-center justify-center"
+                    >
+                      <AppImage
+                        source={{ uri: image.uri }}
+                        resizeMode="contain"
+                        className="h-full w-full"
+                      />
+                    </View>
+                  ))}
+                </ScrollView>
+              </View>
+
+              <View className="flex-row gap-2">
+                <AppButton
+                  className="flex-1"
+                  width="auto"
+                  variant="secondary"
+                  label="Previous"
+                  disabled={licenseImages.length <= 1}
+                  onPress={showPreviousLicenseImage}
+                />
+                <AppButton
+                  className="flex-1"
+                  width="auto"
+                  variant="secondary"
+                  label="Next"
+                  disabled={licenseImages.length <= 1}
+                  onPress={showNextLicenseImage}
+                />
+              </View>
+            </Pressable>
+          </SafeAreaView>
         </Pressable>
       </Modal>
     </>

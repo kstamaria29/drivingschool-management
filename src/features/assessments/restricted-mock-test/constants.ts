@@ -21,7 +21,9 @@ export const restrictedMockTestStages = [
     badge: "Screening stage",
     tasks: [
       { id: "s1_rt", name: "Right turn giving way", speed: "≤60", targetReps: 10 },
+      { id: "s1_rtOncoming1", name: "Right turn across 1 lane oncoming", speed: "≤60", targetReps: 10 },
       { id: "s1_lt", name: "Left turn giving way", speed: "≤60", targetReps: 10 },
+      { id: "s1_ltPrio", name: "Left turn with priority", speed: "≤60", targetReps: 10 },
       { id: "s1_lcr", name: "Lane change right", speed: "≤60", targetReps: 5 },
       { id: "s1_lcl", name: "Lane change left", speed: "≤60", targetReps: 5 },
       { id: "s1_rpp", name: "Reverse Parallel Park", speed: "Low / kerbside", targetReps: 3 },

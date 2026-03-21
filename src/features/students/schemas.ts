@@ -1,5 +1,6 @@
 import { z } from "zod";
 
+import { STUDENT_LEARNER_TYPE_OPTIONS } from "./constants";
 import { parseDateInputToISODate } from "../../utils/dates";
 
 const dateString = z
@@ -27,6 +28,7 @@ export const studentFormSchema = z.object({
     }),
   address: z.string().trim(),
   organization: z.string().trim().min(1, "Organization is required"),
+  learnerTypes: z.array(z.enum(STUDENT_LEARNER_TYPE_OPTIONS)),
   assignedInstructorId: z.string().uuid("Select an instructor"),
   licenseType: z.enum(
     ["learner", "restricted", "full"],
@@ -38,6 +40,9 @@ export const studentFormSchema = z.object({
   issueDate: dateString,
   expiryDate: dateString,
   notes: z.string().trim(),
+  photoVideoReleaseConsent: z.boolean(),
+  photoVideoReleaseLiabilityWaiver: z.boolean(),
+  declarationConfirmed: z.boolean(),
 });
 
 export type StudentFormValues = z.infer<typeof studentFormSchema>;

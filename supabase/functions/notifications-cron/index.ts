@@ -136,7 +136,7 @@ function buildDailyDigestBody(lessons: DigestLesson[], timeZone: string) {
   const lines = lessons.slice(0, 4).map((lesson) => {
     const time = toShortTime(lesson.start_time, timeZone);
     const student = `${lesson.student_first_name ?? ""} ${lesson.student_last_name ?? ""}`.trim();
-    return `${time} — ${student || "Lesson"}`;
+    return `${time} - ${student || "Lesson"}`;
   });
 
   const remaining = lessons.length - lines.length;
@@ -295,6 +295,24 @@ Deno.serve(async (_req) => {
     const tokens = digestTokensByProfileId.get(profile.profile_id) ?? [];
     if (!tokens.length) continue;
 
+    const {
+      data: lessonRows,
+      error: lessonsError,
+    } = await supabase.rpc("get_lessons_for_local_date", {
+      p_profile_id: profile.profile_id,
+      p_local_date: profile.local_date,
+    });
+
+    if (lessonsError) {
+      console.error("daily_digest_lessons_lookup_failed", {
+        profileId: profile.profile_id,
+        localDate: profile.local_date,
+        error: lessonsError,
+      });
+      // Don't mark as delivered - allow retry on the next cron run.
+      continue;
+    }
+
     const { error: insertError } = await supabase.from("daily_digest_deliveries").insert({
       organization_id: profile.organization_id,
       profile_id: profile.profile_id,
@@ -306,11 +324,6 @@ Deno.serve(async (_req) => {
     }
 
     digestDeliveriesInserted += 1;
-
-    const { data: lessonRows } = await supabase.rpc("get_lessons_for_local_date", {
-      p_profile_id: profile.profile_id,
-      p_local_date: profile.local_date,
-    });
 
     const lessons = (lessonRows ?? []) as DigestLesson[];
     const title = "Today's lessons";

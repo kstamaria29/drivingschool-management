@@ -13,10 +13,12 @@ import {
 import {
   ActivityIndicator,
   Alert,
+  KeyboardAvoidingView,
   Modal,
   Platform,
   Pressable,
   ScrollView,
+  useWindowDimensions,
   View,
 } from "react-native";
 import * as FileSystem from "expo-file-system/legacy";
@@ -63,6 +65,7 @@ import { openPdfUri } from "../../utils/open-pdf";
 import { AssessmentStudentDropdown } from "../components/AssessmentStudentDropdown";
 import { useNavigationLayout } from "../useNavigationLayout";
 import { useAssessmentLeaveGuard } from "../useAssessmentLeaveGuard";
+import { useKeyboardAwareScroll } from "../useKeyboardAwareScroll";
 
 import type { AssessmentsStackParamList } from "../AssessmentsStackNavigator";
 import type { MainDrawerParamList } from "../MainDrawerNavigator";
@@ -200,6 +203,7 @@ function FeedbackField({
 export function DrivingAssessmentScreen({ navigation, route }: Props) {
   const { profile, userId } = useCurrentUser();
   const { isCompact } = useNavigationLayout();
+  const { height } = useWindowDimensions();
 
   const organizationQuery = useOrganizationQuery(profile.organization_id);
   const organizationSettingsQuery = useOrganizationSettingsQuery(profile.organization_id);
@@ -214,6 +218,11 @@ export function DrivingAssessmentScreen({ navigation, route }: Props) {
   const [pendingSubmitValues, setPendingSubmitValues] = useState<DrivingAssessmentFormValues | null>(null);
 
   const scrollRef = useRef<ScrollView | null>(null);
+  const { onScroll: onKeyboardAwareScroll, scrollEventThrottle } = useKeyboardAwareScroll({
+    enabled: true,
+    height,
+    scrollRef,
+  });
   const [openSuggestions, setOpenSuggestions] = useState<FeedbackKey | null>(null);
   const [feedbackFieldY, setFeedbackFieldY] = useState<
     Partial<Record<FeedbackKey, number>>
@@ -598,14 +607,24 @@ export function DrivingAssessmentScreen({ navigation, route }: Props) {
 
   return (
     <>
-      <Screen scroll={false}>
-      <ScrollView
-        ref={scrollRef}
-        contentContainerClassName={isCompact ? "gap-3 pb-6" : "gap-4 pb-6"}
-        showsVerticalScrollIndicator={false}
-        showsHorizontalScrollIndicator={false}
-      >
-        <AppStack gap={isCompact ? "md" : "lg"}>
+      <Screen scroll={false} keyboardAvoidingEnabled={false}>
+        <KeyboardAvoidingView
+          className="flex-1"
+          behavior={Platform.OS === "ios" ? "padding" : "height"}
+          enabled
+        >
+          <ScrollView
+            ref={scrollRef}
+            contentContainerClassName={isCompact ? "gap-3 pb-6" : "gap-4 pb-6"}
+            keyboardShouldPersistTaps="handled"
+            keyboardDismissMode={Platform.OS === "ios" ? "interactive" : "on-drag"}
+            automaticallyAdjustKeyboardInsets={Platform.OS === "ios"}
+            showsVerticalScrollIndicator={false}
+            showsHorizontalScrollIndicator={false}
+            onScroll={onKeyboardAwareScroll}
+            scrollEventThrottle={scrollEventThrottle}
+          >
+            <AppStack gap={isCompact ? "md" : "lg"}>
           <View>
             <AppText variant="title">Driving Assessment</AppText>
             <AppText className="mt-2" variant="body">
@@ -887,8 +906,9 @@ export function DrivingAssessmentScreen({ navigation, route }: Props) {
             variant="ghost"
             onPress={() => navigation.goBack()}
           />
-        </AppStack>
-      </ScrollView>
+            </AppStack>
+          </ScrollView>
+        </KeyboardAvoidingView>
       </Screen>
 
       <SubmitAssessmentConfirmModal
