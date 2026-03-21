@@ -649,6 +649,8 @@ export function StudentEditScreen({ navigation, route }: Props) {
     (licenseActionHasPending ||
       (Boolean(licenseActionExistingUri) && !licenseActionMarkedForRemoval));
   const selectedOrganization = form.watch("organization")?.trim() ?? "";
+  const isCreateDeclarationUnchecked =
+    !isEditing && !form.watch("declarationConfirmed");
   const declarationStudentFullName = [
     form.watch("firstName")?.trim() ?? "",
     form.watch("lastName")?.trim() ?? "",
@@ -1228,7 +1230,10 @@ export function StudentEditScreen({ navigation, route }: Props) {
                     }}
                   />
                   {fieldState.error?.message ? (
-                    <AppText variant="error">
+                    <AppText
+                      variant="button"
+                      className="text-sm text-danger dark:text-dangerDark"
+                    >
                       {fieldState.error.message}
                     </AppText>
                   ) : null}
@@ -1251,6 +1256,7 @@ export function StudentEditScreen({ navigation, route }: Props) {
             label={
               saving ? "Saving..." : isEditing ? "Save student" : "Add student"
             }
+            variant={isCreateDeclarationUnchecked ? "secondary" : "primary"}
             disabled={saving}
             onPress={form.handleSubmit(onSubmit)}
           />

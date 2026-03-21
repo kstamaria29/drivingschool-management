@@ -1764,3 +1764,11 @@
   - Updated header buttons so drawer root screens show hamburger only, and all other screens show back only (no navbar titles).
 
 ---
+
+- **Date:** 2026-02-22 (Pacific/Auckland)
+- **Task:** Bottom sheet spacing + scrollbars
+- **Summary:**
+  - Restored the previous bottom sheet top padding and added extra spacing between the handle and content.
+  - Underlined suggestion subheadings, fixed long suggestions scrolling, and hid scroll indicators across the app.
+
+---

@@ -1,6 +1,14 @@
 # PROJECT_LOG.md
 
 - **Date:** 2026-03-21 (Pacific/Auckland)
+- **Task:** Student declaration warning styling
+- **Summary:**
+  - Made the add-student declaration warning render in bold red text.
+  - Changed the Add student button to the grey secondary style until Declaration is checked.
+
+---
+
+- **Date:** 2026-03-21 (Pacific/Auckland)
 - **Task:** Require declaration on new students only
 - **Summary:**
   - Made the Declaration checkbox mandatory only when adding a new student, without blocking edits to older student records.
@@ -146,11 +154,3 @@
 - **Summary:**
   - Updated suggestion modal category labels to use blue styling.
   - Made suggestion-linked multiline inputs auto-expand to fit content (no internal scrolling).
-
----
-
-- **Date:** 2026-02-22 (Pacific/Auckland)
-- **Task:** Bottom sheet spacing + scrollbars
-- **Summary:**
-  - Restored the previous bottom sheet top padding and added extra spacing between the handle and content.
-  - Underlined suggestion subheadings, fixed long suggestions scrolling, and hid scroll indicators across the app.
