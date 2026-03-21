@@ -1952,7 +1952,12 @@ export function FullLicenseMockTestScreen({ navigation, route }: Props) {
 
   return (
     <>
-      <Screen scroll scrollRef={scrollRef} className={cn(isSidebar && "max-w-6xl")}>
+      <Screen
+        scroll
+        scrollRef={scrollRef}
+        keyboardAvoidingEnabled
+        className={cn(isSidebar && "max-w-6xl")}
+      >
         <AppStack gap={isCompact ? "md" : "lg"}>
           {header}
           {studentCard}

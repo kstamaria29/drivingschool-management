@@ -9,16 +9,14 @@ import {
   ActivityIndicator,
   Alert,
   Keyboard,
+  KeyboardAvoidingView,
   Modal,
   Platform,
   Pressable,
   ScrollView,
-  TextInput,
   useWindowDimensions,
   View,
   type GestureResponderEvent,
-  type NativeScrollEvent,
-  type NativeSyntheticEvent,
 } from "react-native";
 import * as FileSystem from "expo-file-system/legacy";
 import { Controller, useForm } from "react-hook-form";
@@ -73,6 +71,7 @@ import { openPdfUri } from "../../utils/open-pdf";
 import { AssessmentStudentDropdown } from "../components/AssessmentStudentDropdown";
 import { useNavigationLayout } from "../useNavigationLayout";
 import { useAssessmentLeaveGuard } from "../useAssessmentLeaveGuard";
+import { useKeyboardAwareScroll } from "../useKeyboardAwareScroll";
 
 import type { AssessmentsStackParamList } from "../AssessmentsStackNavigator";
 import type { MainDrawerParamList } from "../MainDrawerNavigator";
@@ -192,13 +191,10 @@ export function RestrictedMockTestScreen({ navigation, route }: Props) {
   const [pendingSubmitValues, setPendingSubmitValues] = useState<RestrictedMockTestFormValues | null>(null);
 
   const scrollRef = useRef<ScrollView | null>(null);
-  const scrollOffsetYRef = useRef(0);
   const stage1SectionRef = useRef<View | null>(null);
   const stage2SectionRef = useRef<View | null>(null);
   const touchStartRef = useRef<{ x: number; y: number } | null>(null);
-  const { width, height } = useWindowDimensions();
-  const minDimension = Math.min(width, height);
-  const keyboardAwareEnabled = minDimension >= 600 && height > width;
+  const { height } = useWindowDimensions();
 
   const [stage2Enabled, setStage2Enabled] = useState(false);
   const [stagesState, setStagesState] = useState<RestrictedMockTestStagesState>(() =>
@@ -223,6 +219,11 @@ export function RestrictedMockTestScreen({ navigation, route }: Props) {
     "generalFeedback" | "improvementNeeded" | null
   >(null);
   const [draftResolvedStudentId, setDraftResolvedStudentId] = useState<string | null>(null);
+  const { onScroll: onKeyboardAwareScroll, scrollEventThrottle } = useKeyboardAwareScroll({
+    enabled: !taskModalVisible && !submitConfirmVisible,
+    height,
+    scrollRef,
+  });
   const { leaveWithoutPrompt } = useAssessmentLeaveGuard({
     navigation,
     enabled: stage === "test",
@@ -349,40 +350,6 @@ export function RestrictedMockTestScreen({ navigation, route }: Props) {
     });
     return unsubscribe;
   }, [navigation]);
-
-  useEffect(() => {
-    if (!keyboardAwareEnabled) return;
-
-    const showEvent = Platform.OS === "ios" ? "keyboardWillShow" : "keyboardDidShow";
-    const subscription = Keyboard.addListener(showEvent, (event) => {
-      const focusedInput = TextInput.State.currentlyFocusedInput?.();
-      if (!focusedInput || typeof focusedInput.measureInWindow !== "function") {
-        return;
-      }
-
-      focusedInput.measureInWindow((_x, y, _w, inputHeight) => {
-        const keyboardTop = event.endCoordinates.screenY;
-        const inputBottom = y + inputHeight;
-        const isInBottomHalf = y >= height / 2;
-        const overlap = inputBottom - keyboardTop;
-
-        if (!isInBottomHalf || overlap <= 0) return;
-
-        scrollRef.current?.scrollTo({
-          y: Math.max(0, scrollOffsetYRef.current + overlap + 24),
-          animated: true,
-        });
-      });
-    });
-
-    return () => {
-      subscription.remove();
-    };
-  }, [height, keyboardAwareEnabled]);
-
-  function onScroll(event: NativeSyntheticEvent<NativeScrollEvent>) {
-    scrollOffsetYRef.current = event.nativeEvent.contentOffset.y;
-  }
 
   function resetMockTestForStudent(studentId: string) {
     setStage("details");
@@ -1353,7 +1320,10 @@ export function RestrictedMockTestScreen({ navigation, route }: Props) {
 
   return (
     <>
-      <Screen outerProps={{ onTouchStart: onRootTouchStart, onTouchEnd: onRootTouchEnd }}>
+      <Screen
+        keyboardAvoidingEnabled={false}
+        outerProps={{ onTouchStart: onRootTouchStart, onTouchEnd: onRootTouchEnd }}
+      >
         <AppStack className="flex-1" gap={isCompact ? "md" : "lg"}>
           <AppStack gap={isCompact ? "md" : "lg"}>
             {header}
@@ -1361,36 +1331,42 @@ export function RestrictedMockTestScreen({ navigation, route }: Props) {
             {summaryCard}
           </AppStack>
 
-          <ScrollView
-            ref={scrollRef}
+          <KeyboardAvoidingView
             className="flex-1"
-            onTouchStart={onRootTouchStart}
-            onTouchEnd={onRootTouchEnd}
-            keyboardShouldPersistTaps="handled"
-            keyboardDismissMode={Platform.OS === "ios" ? "interactive" : "on-drag"}
-            automaticallyAdjustKeyboardInsets={Platform.OS === "ios" && keyboardAwareEnabled}
-            showsVerticalScrollIndicator={false}
-            showsHorizontalScrollIndicator={false}
-            contentContainerClassName={cn(theme.screen.scrollContent, isCompact ? "pb-6" : "pb-8")}
-            onScroll={keyboardAwareEnabled ? onScroll : undefined}
-            scrollEventThrottle={keyboardAwareEnabled ? 16 : undefined}
+            behavior={Platform.OS === "ios" ? "padding" : "height"}
+            enabled={!taskModalVisible}
           >
-            <AppStack gap={isCompact ? "md" : "lg"}>
-              {stage === "details" ? preDriveCard : null}
-              {stage === "confirm" ? stageActions : null}
+            <ScrollView
+              ref={scrollRef}
+              className="flex-1"
+              onTouchStart={onRootTouchStart}
+              onTouchEnd={onRootTouchEnd}
+              keyboardShouldPersistTaps="handled"
+              keyboardDismissMode={Platform.OS === "ios" ? "interactive" : "on-drag"}
+              automaticallyAdjustKeyboardInsets={Platform.OS === "ios"}
+              showsVerticalScrollIndicator={false}
+              showsHorizontalScrollIndicator={false}
+              contentContainerClassName={cn(theme.screen.scrollContent, isCompact ? "pb-6" : "pb-8")}
+              onScroll={onKeyboardAwareScroll}
+              scrollEventThrottle={scrollEventThrottle}
+            >
+              <AppStack gap={isCompact ? "md" : "lg"}>
+                {stage === "details" ? preDriveCard : null}
+                {stage === "confirm" ? stageActions : null}
 
-              {stage === "test" ? (
-                <>
-                  {renderStageTasks("stage1")}
-                  {renderStageTasks("stage2")}
-                  {feedbackCards}
-                  {stageActions}
-                </>
-              ) : null}
+                {stage === "test" ? (
+                  <>
+                    {renderStageTasks("stage1")}
+                    {renderStageTasks("stage2")}
+                    {feedbackCards}
+                    {stageActions}
+                  </>
+                ) : null}
 
-              {stage === "details" ? stageActions : null}
-            </AppStack>
-          </ScrollView>
+                {stage === "details" ? stageActions : null}
+              </AppStack>
+            </ScrollView>
+          </KeyboardAvoidingView>
         </AppStack>
       </Screen>
 

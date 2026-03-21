@@ -1,6 +1,22 @@
 # PROJECT_LOG.md
 
 - **Date:** 2026-03-21 (Pacific/Auckland)
+- **Task:** Assessment keyboard avoidance
+- **Summary:**
+  - Added `KeyboardAvoidingView`-based keyboard handling to the Restricted and Driving assessment scroll areas so lower feedback fields stay reachable while typing.
+  - Enabled shared keyboard avoidance for the Full License mock test and added a reusable keyboard-aware scroll hook for assessment forms.
+
+---
+
+- **Date:** 2026-03-21 (Pacific/Auckland)
+- **Task:** Restricted Stage 1 task additions
+- **Summary:**
+  - Added `Right turn across 1 lane oncoming` and `Left turn with priority` to Stage 1 of the Restricted mock test with 10-rep targets.
+  - Kept the shared task definitions aligned so the screen, generated PDF, and student assessment history use the same updated Stage 1 order.
+
+---
+
+- **Date:** 2026-03-21 (Pacific/Auckland)
 - **Task:** Student declaration warning styling
 - **Summary:**
   - Made the add-student declaration warning render in bold red text.
@@ -138,19 +154,3 @@
 - **Summary:**
   - Added organization email field + edit screen in Settings.
   - Displayed the org email in the Organization block and added a "Change organization email" action.
-
----
-
-- **Date:** 2026-02-22 (Pacific/Auckland)
-- **Task:** Restricted PDF stage pagination
-- **Summary:**
-  - Hid Stage 2 section/details in the PDF when Stage 2 was not enabled.
-  - Forced Stage 2 (when enabled) to start on a new PDF page.
-
----
-
-- **Date:** 2026-02-22 (Pacific/Auckland)
-- **Task:** Suggestions: blue subheadings + auto-grow inputs
-- **Summary:**
-  - Updated suggestion modal category labels to use blue styling.
-  - Made suggestion-linked multiline inputs auto-expand to fit content (no internal scrolling).

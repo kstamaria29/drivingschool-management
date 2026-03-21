@@ -1772,3 +1772,19 @@
   - Underlined suggestion subheadings, fixed long suggestions scrolling, and hid scroll indicators across the app.
 
 ---
+
+- **Date:** 2026-02-22 (Pacific/Auckland)
+- **Task:** Suggestions: blue subheadings + auto-grow inputs
+- **Summary:**
+  - Updated suggestion modal category labels to use blue styling.
+  - Made suggestion-linked multiline inputs auto-expand to fit content (no internal scrolling).
+
+---
+
+- **Date:** 2026-02-22 (Pacific/Auckland)
+- **Task:** Restricted PDF stage pagination
+- **Summary:**
+  - Hid Stage 2 section/details in the PDF when Stage 2 was not enabled.
+  - Forced Stage 2 (when enabled) to start on a new PDF page.
+
+---
