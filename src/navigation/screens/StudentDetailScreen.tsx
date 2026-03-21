@@ -32,13 +32,22 @@ import {
 
 import { AppButton } from "../../components/AppButton";
 import { AppCard } from "../../components/AppCard";
+import { AppCheckbox } from "../../components/AppCheckbox";
 import { AppImage } from "../../components/AppImage";
 import { AppStack } from "../../components/AppStack";
 import { AppText } from "../../components/AppText";
 import { Screen } from "../../components/Screen";
 import { useAssessmentsQuery } from "../../features/assessments/queries";
+import { useOrganizationQuery } from "../../features/organization/queries";
 import { useStudentRemindersQuery } from "../../features/reminders/queries";
 import { useStudentSessionsQuery } from "../../features/sessions/queries";
+import {
+  getStudentLearnerTypeLabel,
+  getStudentPhotoVideoReleaseLiabilityText,
+  getStudentPhotoVideoReleasePermissionText,
+  getStudentReleaseOrganizationName,
+  STUDENT_DECLARATION_COPY,
+} from "../../features/students/constants";
 import {
   useArchiveStudentMutation,
   useDeleteStudentMutation,
@@ -197,6 +206,7 @@ export function StudentDetailScreen({ navigation, route }: Props) {
       : theme.colors.foregroundLight;
 
   const query = useStudentQuery(studentId);
+  const organizationQuery = useOrganizationQuery(query.data?.organization_id);
   const sessionsQuery = useStudentSessionsQuery({ studentId });
   const assessmentsQuery = useAssessmentsQuery({ studentId });
   const remindersQuery = useStudentRemindersQuery({ studentId });
@@ -207,6 +217,13 @@ export function StudentDetailScreen({ navigation, route }: Props) {
   const removeLicenseImageMutation = useRemoveStudentLicenseImageMutation();
 
   const student = query.data ?? null;
+  const releaseOrganizationName = getStudentReleaseOrganizationName(
+    organizationQuery.data?.name,
+  );
+  const photoVideoReleasePermissionText =
+    getStudentPhotoVideoReleasePermissionText(releaseOrganizationName);
+  const photoVideoReleaseLiabilityText =
+    getStudentPhotoVideoReleaseLiabilityText(releaseOrganizationName);
   const isArchived = Boolean(student?.archived_at);
   const notes = student?.notes?.trim() ? student.notes.trim() : "";
   const sessionCount = sessionsQuery.data?.length ?? 0;
@@ -634,6 +651,12 @@ export function StudentDetailScreen({ navigation, route }: Props) {
                       label="Address"
                       value={student.address?.trim() ? student.address : "-"}
                     />
+
+                    <DetailValueField
+                      className="w-full"
+                      label="Type of learner"
+                      value={getStudentLearnerTypeLabel(student.learner_type)}
+                    />
                   </AppCard>
 
                 <AppCard className="gap-3">
@@ -790,6 +813,36 @@ export function StudentDetailScreen({ navigation, route }: Props) {
                     <AppText variant="body">{notes}</AppText>
                   </AppCard>
                 ) : null}
+
+                <AppCard className="gap-3">
+                  <AppText variant="heading">
+                    Photo and Video Release Permission
+                  </AppText>
+                  <AppCheckbox
+                    readOnly
+                    checked={student.photo_video_release_consent}
+                    label={photoVideoReleasePermissionText}
+                  />
+                  <AppCheckbox
+                    readOnly
+                    checked={student.photo_video_release_liability_waiver}
+                    label={photoVideoReleaseLiabilityText}
+                  />
+                </AppCard>
+
+                <AppCard className="gap-3">
+                  <AppText variant="heading">Declaration</AppText>
+                  <AppCheckbox
+                    readOnly
+                    checked={student.declaration_confirmed}
+                    label={STUDENT_DECLARATION_COPY}
+                  />
+                  <DetailValueField
+                    className="w-full"
+                    label="Full name"
+                    value={`${student.first_name} ${student.last_name}`.trim() || "-"}
+                  />
+                </AppCard>
                 </AppStack>
               </View>
             </>

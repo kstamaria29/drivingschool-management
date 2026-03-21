@@ -1,5 +1,35 @@
 # PROJECT_LOG.md
 
+- **Date:** 2026-03-21 (Pacific/Auckland)
+- **Task:** Fix declaration full name source
+- **Summary:**
+  - Changed the declaration name display to use the student's entered first and last name instead of the logged-in user.
+  - Removed the pending `declaration_full_name` column from migration `024` before it is applied to Supabase.
+
+---
+
+- **Date:** 2026-03-21 (Pacific/Auckland)
+- **Task:** Add student learner type + permissions
+- **Summary:**
+  - Added learner type, photo/video release, and declaration fields to the shared New/Edit student flow.
+  - Persisted the new student fields through Supabase and displayed them on the student profile screen.
+
+---
+
+- **Date:** 2026-03-21 (Pacific/Auckland)
+- **Task:** Show global AGENTS guide
+- **Summary:**
+  - Retrieved the shared global `AGENTS.md` from the Codex home directory so it could be shown directly for reference.
+
+---
+
+- **Date:** 2026-02-24 (Pacific/Auckland)
+- **Task:** Daily digest lesson lookup
+- **Summary:**
+  - Fixed `get_lessons_for_local_date` to join through `notification_settings` so daily digests use the same org-scoped lesson selection as upcoming reminders.
+
+---
+
 - **Date:** 2026-02-24 (Pacific/Auckland)
 - **Task:** Daily digest reliability
 - **Summary:**
@@ -124,34 +154,3 @@
 - **Summary:**
   - Switched the suggestions picker (task errors + feedback) to the same bottom-sheet pattern as the task repetition modal.
   - Updated suggestions helper copy to reflect handle/backdrop dismissal.
-
----
-
-- **Date:** 2026-02-22 (Pacific/Auckland)
-- **Task:** Restricted task modal bottom sheet
-- **Summary:**
-  - Converted the task repetition modal into an animated bottom sheet with a handle (drag or tap to expand/collapse, tap backdrop to dismiss).
-  - Matched the modal padding to the main screen container paddings.
-
----
-
-- **Date:** 2026-02-22 (Pacific/Auckland)
-- **Task:** Restricted mock test UX refinements
-- **Summary:**
-  - Defaulted pre-drive Time to current time, removed the optional label, and auto-expanded Stage 1 when starting/resuming.
-  - Moved error/feedback suggestions into a dedicated modal and persisted in-progress task repetition selections with dynamic modal height.
-
----
-
-- **Date:** 2026-02-21 (Pacific/Auckland)
-- **Task:** Lessons address label + size
-- **Summary:**
-  - Removed the Location label and bumped address text size on New Lesson and Lessons list.
-
----
-
-- **Date:** 2026-02-21 (Pacific/Auckland)
-- **Task:** New lesson layout refinements
-- **Summary:**
-  - Rendered selected student address directly under the student picker and increased selected student name emphasis.
-  - Moved Start time + Duration into a 2-column row for faster scheduling.

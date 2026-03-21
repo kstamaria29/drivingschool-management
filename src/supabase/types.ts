@@ -118,6 +118,7 @@ export type Database = {
           phone: string | null;
           address: string | null;
           organization_name: string;
+          learner_type: "visual" | "auditory" | "ready" | "kinesthetic" | null;
           license_type: "learner" | "restricted" | "full" | null;
           license_number: string | null;
           license_version: string | null;
@@ -127,6 +128,9 @@ export type Database = {
           issue_date: string | null;
           expiry_date: string | null;
           notes: string | null;
+          photo_video_release_consent: boolean;
+          photo_video_release_liability_waiver: boolean;
+          declaration_confirmed: boolean;
           archived_at: string | null;
           created_at: string;
           updated_at: string;
@@ -142,6 +146,7 @@ export type Database = {
           phone?: string | null;
           address?: string | null;
           organization_name?: string;
+          learner_type?: "visual" | "auditory" | "ready" | "kinesthetic" | null;
           license_type?: "learner" | "restricted" | "full" | null;
           license_number?: string | null;
           license_version?: string | null;
@@ -151,6 +156,9 @@ export type Database = {
           issue_date?: string | null;
           expiry_date?: string | null;
           notes?: string | null;
+          photo_video_release_consent?: boolean;
+          photo_video_release_liability_waiver?: boolean;
+          declaration_confirmed?: boolean;
           archived_at?: string | null;
           created_at?: string;
           updated_at?: string;
@@ -165,6 +173,7 @@ export type Database = {
           phone?: string | null;
           address?: string | null;
           organization_name?: string;
+          learner_type?: "visual" | "auditory" | "ready" | "kinesthetic" | null;
           license_type?: "learner" | "restricted" | "full" | null;
           license_number?: string | null;
           license_version?: string | null;
@@ -174,6 +183,9 @@ export type Database = {
           issue_date?: string | null;
           expiry_date?: string | null;
           notes?: string | null;
+          photo_video_release_consent?: boolean;
+          photo_video_release_liability_waiver?: boolean;
+          declaration_confirmed?: boolean;
           archived_at?: string | null;
           updated_at?: string;
         };

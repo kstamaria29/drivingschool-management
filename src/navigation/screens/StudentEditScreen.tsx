@@ -15,6 +15,7 @@ import { X } from "lucide-react-native";
 
 import { AppButton } from "../../components/AppButton";
 import { AppCard } from "../../components/AppCard";
+import { AppCheckbox } from "../../components/AppCheckbox";
 import { AddressAutocompleteInput } from "../../components/AddressAutocompleteInput";
 import { AppDateInput } from "../../components/AppDateInput";
 import { AppImage } from "../../components/AppImage";
@@ -25,6 +26,7 @@ import { Screen } from "../../components/Screen";
 import { useMyProfileQuery } from "../../features/auth/queries";
 import { isOwnerOrAdminRole, toRoleLabel } from "../../features/auth/roles";
 import { useAuthSession } from "../../features/auth/session";
+import { useOrganizationQuery } from "../../features/organization/queries";
 import { useOrganizationProfilesQuery } from "../../features/profiles/queries";
 import {
   useCreateStudentMutation,
@@ -34,6 +36,11 @@ import {
   useUpdateStudentMutation,
 } from "../../features/students/queries";
 import {
+  getStudentPhotoVideoReleaseLiabilityText,
+  getStudentPhotoVideoReleasePermissionText,
+  getStudentReleaseOrganizationName,
+  STUDENT_DECLARATION_COPY,
+  STUDENT_LEARNER_TYPE_OPTIONS,
   normalizeStudentOrganization,
   STUDENT_ORGANIZATION_OPTIONS,
 } from "../../features/students/constants";
@@ -61,6 +68,15 @@ type CreateProps = NativeStackScreenProps<
 type EditProps = NativeStackScreenProps<StudentsStackParamList, "StudentEdit">;
 type Props = CreateProps | EditProps;
 const classHeldOptions = ["1L", "1R", "1F"] as const;
+const learnerTypeLabels: Record<
+  (typeof STUDENT_LEARNER_TYPE_OPTIONS)[number],
+  string
+> = {
+  visual: "Visual",
+  auditory: "Auditory",
+  ready: "Ready",
+  kinesthetic: "Kinesthetic",
+};
 const studentOrganizationMenuOptions = [
   ...STUDENT_ORGANIZATION_OPTIONS,
   "Custom",
@@ -87,6 +103,7 @@ export function StudentEditScreen({ navigation, route }: Props) {
   const { session } = useAuthSession();
   const userId = session?.user.id;
   const profileQuery = useMyProfileQuery(userId);
+  const organizationQuery = useOrganizationQuery(profileQuery.data?.organization_id);
 
   const studentQuery = useStudentQuery(studentId);
   const createMutation = useCreateStudentMutation();
@@ -135,6 +152,7 @@ export function StudentEditScreen({ navigation, route }: Props) {
       phone: "",
       address: "",
       organization: STUDENT_ORGANIZATION_OPTIONS[0],
+      learnerType: "visual",
       assignedInstructorId: defaultAssignedInstructorId,
       licenseType: "learner",
       licenseNumber: "",
@@ -143,6 +161,9 @@ export function StudentEditScreen({ navigation, route }: Props) {
       issueDate: "",
       expiryDate: "",
       notes: "",
+      photoVideoReleaseConsent: false,
+      photoVideoReleaseLiabilityWaiver: false,
+      declarationConfirmed: false,
     },
   });
   const [organizationOptionsModalVisible, setOrganizationOptionsModalVisible] =
@@ -218,6 +239,7 @@ export function StudentEditScreen({ navigation, route }: Props) {
       address: studentQuery.data.address ?? "",
       organization:
         studentQuery.data.organization_name ?? STUDENT_ORGANIZATION_OPTIONS[0],
+      learnerType: studentQuery.data.learner_type ?? "visual",
       assignedInstructorId: studentQuery.data.assigned_instructor_id,
       licenseType: studentQuery.data.license_type ?? "learner",
       licenseNumber: studentQuery.data.license_number ?? "",
@@ -230,6 +252,11 @@ export function StudentEditScreen({ navigation, route }: Props) {
         ? formatIsoDateToDisplay(studentQuery.data.expiry_date)
         : "",
       notes: studentQuery.data.notes ?? "",
+      photoVideoReleaseConsent:
+        studentQuery.data.photo_video_release_consent ?? false,
+      photoVideoReleaseLiabilityWaiver:
+        studentQuery.data.photo_video_release_liability_waiver ?? false,
+      declarationConfirmed: studentQuery.data.declaration_confirmed ?? false,
     });
     setRemoveLicenseFrontOnSave(false);
     setRemoveLicenseBackOnSave(false);
@@ -284,6 +311,13 @@ export function StudentEditScreen({ navigation, route }: Props) {
   }
 
   const organizationId = profile.organization_id;
+  const releaseOrganizationName = getStudentReleaseOrganizationName(
+    organizationQuery.data?.name,
+  );
+  const photoVideoReleasePermissionText =
+    getStudentPhotoVideoReleasePermissionText(releaseOrganizationName);
+  const photoVideoReleaseLiabilityText =
+    getStudentPhotoVideoReleaseLiabilityText(releaseOrganizationName);
   const mutationError =
     createMutation.error ??
     updateMutation.error ??
@@ -309,6 +343,7 @@ export function StudentEditScreen({ navigation, route }: Props) {
       phone: values.phone.trim(),
       address: emptyToNull(values.address),
       organization_name: normalizeStudentOrganization(values.organization),
+      learner_type: values.learnerType,
       license_type: values.licenseType,
       license_number: emptyToNull(values.licenseNumber),
       license_version: emptyToNull(values.licenseVersion),
@@ -320,6 +355,10 @@ export function StudentEditScreen({ navigation, route }: Props) {
         ? parseDateInputToISODate(values.expiryDate)
         : null,
       notes: emptyToNull(values.notes),
+      photo_video_release_consent: values.photoVideoReleaseConsent,
+      photo_video_release_liability_waiver:
+        values.photoVideoReleaseLiabilityWaiver,
+      declaration_confirmed: values.declarationConfirmed,
     } as const;
     return base;
   }
@@ -546,7 +585,7 @@ export function StudentEditScreen({ navigation, route }: Props) {
     ]);
   }
 
-  function onNotesFocus() {
+  function scrollToBottomSoon() {
     setTimeout(() => {
       studentEditScrollRef.current?.scrollToEnd({ animated: true });
     }, 100);
@@ -598,6 +637,12 @@ export function StudentEditScreen({ navigation, route }: Props) {
     (licenseActionHasPending ||
       (Boolean(licenseActionExistingUri) && !licenseActionMarkedForRemoval));
   const selectedOrganization = form.watch("organization")?.trim() ?? "";
+  const declarationStudentFullName = [
+    form.watch("firstName")?.trim() ?? "",
+    form.watch("lastName")?.trim() ?? "",
+  ]
+    .filter(Boolean)
+    .join(" ");
   const hasCustomOrganization =
     selectedOrganization.length > 0 &&
     !presetOrganizationLookup.has(selectedOrganization.toLowerCase());
@@ -742,6 +787,36 @@ export function StudentEditScreen({ navigation, route }: Props) {
                       {fieldState.error.message}
                     </AppText>
                   ) : null}
+                </AppStack>
+              )}
+            />
+
+            <Controller
+              control={form.control}
+              name="learnerType"
+              render={({ field, fieldState }) => (
+                <AppStack gap="sm">
+                  <AppText variant="label">Type of learner</AppText>
+                  {fieldState.error?.message ? (
+                    <AppText variant="error">
+                      {fieldState.error.message}
+                    </AppText>
+                  ) : null}
+
+                  <View className="flex-row flex-wrap gap-2">
+                    {STUDENT_LEARNER_TYPE_OPTIONS.map((option) => (
+                      <AppButton
+                        key={option}
+                        label={learnerTypeLabels[option]}
+                        width="auto"
+                        className={cn(isCompact ? "min-w-[48%] flex-1" : "flex-1")}
+                        variant={
+                          field.value === option ? "primary" : "secondary"
+                        }
+                        onPress={() => field.onChange(option)}
+                      />
+                    ))}
+                  </View>
                 </AppStack>
               )}
             />
@@ -1073,10 +1148,60 @@ export function StudentEditScreen({ navigation, route }: Props) {
                   inputClassName="h-28 py-3"
                   value={field.value}
                   onChangeText={field.onChange}
-                  onFocus={onNotesFocus}
+                  onFocus={scrollToBottomSoon}
                   onBlur={field.onBlur}
                 />
               )}
+            />
+          </AppCard>
+
+          <AppCard className="gap-4">
+            <AppText variant="heading">Photo and Video Release Permission</AppText>
+
+            <Controller
+              control={form.control}
+              name="photoVideoReleaseConsent"
+              render={({ field }) => (
+                <AppCheckbox
+                  checked={field.value}
+                  label={photoVideoReleasePermissionText}
+                  onPress={() => field.onChange(!field.value)}
+                />
+              )}
+            />
+
+            <Controller
+              control={form.control}
+              name="photoVideoReleaseLiabilityWaiver"
+              render={({ field }) => (
+                <AppCheckbox
+                  checked={field.value}
+                  label={photoVideoReleaseLiabilityText}
+                  onPress={() => field.onChange(!field.value)}
+                />
+              )}
+            />
+          </AppCard>
+
+          <AppCard className="gap-4">
+            <AppText variant="heading">Declaration</AppText>
+
+            <Controller
+              control={form.control}
+              name="declarationConfirmed"
+              render={({ field }) => (
+                <AppCheckbox
+                  checked={field.value}
+                  label={STUDENT_DECLARATION_COPY}
+                  onPress={() => field.onChange(!field.value)}
+                />
+              )}
+            />
+
+            <AppInput
+              label="Full name"
+              value={declarationStudentFullName}
+              editable={false}
             />
           </AppCard>
 

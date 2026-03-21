@@ -979,6 +979,14 @@
 
 ---
 
+- **Date:** 2026-02-21 (Pacific/Auckland)
+- **Task:** New lesson layout refinements
+- **Summary:**
+  - Rendered selected student address directly under the student picker and increased selected student name emphasis.
+  - Moved Start time + Duration into a 2-column row for faster scheduling.
+
+---
+
 - **Date:** 2026-02-11 (Pacific/Auckland)
 - **Task:** Licence upload width set to 500px
 - **Summary:**
@@ -1715,5 +1723,28 @@
 - **Summary:**
   - Moved the Student block above date/time/duration and reused the assessment-style student dropdown search.
   - Removed Status + Location inputs; now shows Location from the selected student address and updated lesson cards accordingly.
+
+---
+
+- **Date:** 2026-02-21 (Pacific/Auckland)
+- **Task:** Lessons address label + size
+- **Summary:**
+  - Removed the Location label and bumped address text size on New Lesson and Lessons list.
+
+---
+
+- **Date:** 2026-02-22 (Pacific/Auckland)
+- **Task:** Restricted mock test UX refinements
+- **Summary:**
+  - Defaulted pre-drive Time to current time, removed the optional label, and auto-expanded Stage 1 when starting/resuming.
+  - Moved error/feedback suggestions into a dedicated modal and persisted in-progress task repetition selections with dynamic modal height.
+
+---
+
+- **Date:** 2026-02-22 (Pacific/Auckland)
+- **Task:** Restricted task modal bottom sheet
+- **Summary:**
+  - Converted the task repetition modal into an animated bottom sheet with a handle (drag or tap to expand/collapse, tap backdrop to dismiss).
+  - Matched the modal padding to the main screen container paddings.
 
 ---

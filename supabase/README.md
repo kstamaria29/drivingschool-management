@@ -28,6 +28,8 @@ In the Supabase Dashboard:
    - `supabase/migrations/020_student_reminders_time.sql`
    - `supabase/migrations/021_notifications_settings_push.sql`
    - `supabase/migrations/022_organization_email.sql`
+   - `supabase/migrations/023_daily_digest_lessons_lookup_fix.sql`
+   - `supabase/migrations/024_students_permissions_and_learner_type.sql`
 
 ## Edge Functions
 
