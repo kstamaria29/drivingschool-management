@@ -28,7 +28,7 @@ export const studentFormSchema = z.object({
     }),
   address: z.string().trim(),
   organization: z.string().trim().min(1, "Organization is required"),
-  learnerType: z.enum(STUDENT_LEARNER_TYPE_OPTIONS, "Select a learner type"),
+  learnerTypes: z.array(z.enum(STUDENT_LEARNER_TYPE_OPTIONS)),
   assignedInstructorId: z.string().uuid("Select an instructor"),
   licenseType: z.enum(
     ["learner", "restricted", "full"],

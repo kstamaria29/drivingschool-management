@@ -2,7 +2,7 @@
 -- Adds learner profile, media release, and declaration fields to students.
 
 alter table public.students
-add column if not exists learner_type text null;
+add column if not exists learner_types text[] not null default '{}'::text[];
 
 alter table public.students
 add column if not exists photo_video_release_consent boolean not null default false;
@@ -18,13 +18,12 @@ begin
   if not exists (
     select 1
     from pg_constraint
-    where conname = 'students_learner_type_check'
+    where conname = 'students_learner_types_check'
   ) then
     alter table public.students
-    add constraint students_learner_type_check
+    add constraint students_learner_types_check
     check (
-      learner_type is null
-      or learner_type in ('visual', 'auditory', 'ready', 'kinesthetic')
+      learner_types <@ array['visual', 'auditory', 'ready', 'kinesthetic']::text[]
     );
   end if;
 end;

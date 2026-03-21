@@ -1,6 +1,22 @@
 # PROJECT_LOG.md
 
 - **Date:** 2026-03-21 (Pacific/Auckland)
+- **Task:** Require declaration on new students only
+- **Summary:**
+  - Made the Declaration checkbox mandatory only when adding a new student, without blocking edits to older student records.
+  - Hid the permission/declaration blocks on student profile pages unless the student was created with the new declaration flow.
+
+---
+
+- **Date:** 2026-03-21 (Pacific/Auckland)
+- **Task:** Make learner type multi-select
+- **Summary:**
+  - Changed the student learner-type field to support multiple selections in the form and profile display.
+  - Updated pending migration `024` to store learner types as a text array before it is applied to Supabase.
+
+---
+
+- **Date:** 2026-03-21 (Pacific/Auckland)
 - **Task:** Fix declaration full name source
 - **Summary:**
   - Changed the declaration name display to use the student's entered first and last name instead of the logged-in user.
@@ -138,19 +154,3 @@
 - **Summary:**
   - Restored the previous bottom sheet top padding and added extra spacing between the handle and content.
   - Underlined suggestion subheadings, fixed long suggestions scrolling, and hid scroll indicators across the app.
-
----
-
-- **Date:** 2026-02-22 (Pacific/Auckland)
-- **Task:** Bottom sheet + navbar polish
-- **Summary:**
-  - Standardized bottom sheet padding/typography (bigger headings, bolder category labels, left-aligned suggestion options).
-  - Updated header buttons so drawer root screens show hamburger only, and all other screens show back only (no navbar titles).
-
----
-
-- **Date:** 2026-02-22 (Pacific/Auckland)
-- **Task:** Restricted suggestions bottom sheet
-- **Summary:**
-  - Switched the suggestions picker (task errors + feedback) to the same bottom-sheet pattern as the task repetition modal.
-  - Updated suggestions helper copy to reflect handle/backdrop dismissal.

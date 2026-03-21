@@ -118,7 +118,7 @@ export type Database = {
           phone: string | null;
           address: string | null;
           organization_name: string;
-          learner_type: "visual" | "auditory" | "ready" | "kinesthetic" | null;
+          learner_types: ("visual" | "auditory" | "ready" | "kinesthetic")[];
           license_type: "learner" | "restricted" | "full" | null;
           license_number: string | null;
           license_version: string | null;
@@ -146,7 +146,7 @@ export type Database = {
           phone?: string | null;
           address?: string | null;
           organization_name?: string;
-          learner_type?: "visual" | "auditory" | "ready" | "kinesthetic" | null;
+          learner_types?: ("visual" | "auditory" | "ready" | "kinesthetic")[];
           license_type?: "learner" | "restricted" | "full" | null;
           license_number?: string | null;
           license_version?: string | null;
@@ -173,7 +173,7 @@ export type Database = {
           phone?: string | null;
           address?: string | null;
           organization_name?: string;
-          learner_type?: "visual" | "auditory" | "ready" | "kinesthetic" | null;
+          learner_types?: ("visual" | "auditory" | "ready" | "kinesthetic")[];
           license_type?: "learner" | "restricted" | "full" | null;
           license_number?: string | null;
           license_version?: string | null;

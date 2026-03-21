@@ -29,10 +29,16 @@ export function normalizeStudentOrganization(value: string) {
   return value.trim().replace(/\s+/g, " ");
 }
 
-export function getStudentLearnerTypeLabel(value: string | null) {
-  const trimmed = value?.trim() ?? "";
+export function getStudentLearnerTypeLabel(value: string) {
+  const trimmed = value.trim();
   if (!trimmed) return "-";
   return trimmed.charAt(0).toUpperCase() + trimmed.slice(1).toLowerCase();
+}
+
+export function getStudentLearnerTypesLabel(values: string[] | null | undefined) {
+  const filtered = (values ?? []).filter((value) => value.trim().length > 0);
+  if (filtered.length === 0) return "-";
+  return filtered.map((value) => getStudentLearnerTypeLabel(value)).join(", ");
 }
 
 export function getStudentReleaseOrganizationName(value: string | null | undefined) {

@@ -41,6 +41,7 @@ import {
   getStudentReleaseOrganizationName,
   STUDENT_DECLARATION_COPY,
   STUDENT_LEARNER_TYPE_OPTIONS,
+  type StudentLearnerType,
   normalizeStudentOrganization,
   STUDENT_ORGANIZATION_OPTIONS,
 } from "../../features/students/constants";
@@ -152,7 +153,7 @@ export function StudentEditScreen({ navigation, route }: Props) {
       phone: "",
       address: "",
       organization: STUDENT_ORGANIZATION_OPTIONS[0],
-      learnerType: "visual",
+      learnerTypes: [],
       assignedInstructorId: defaultAssignedInstructorId,
       licenseType: "learner",
       licenseNumber: "",
@@ -239,7 +240,7 @@ export function StudentEditScreen({ navigation, route }: Props) {
       address: studentQuery.data.address ?? "",
       organization:
         studentQuery.data.organization_name ?? STUDENT_ORGANIZATION_OPTIONS[0],
-      learnerType: studentQuery.data.learner_type ?? "visual",
+      learnerTypes: studentQuery.data.learner_types ?? [],
       assignedInstructorId: studentQuery.data.assigned_instructor_id,
       licenseType: studentQuery.data.license_type ?? "learner",
       licenseNumber: studentQuery.data.license_number ?? "",
@@ -343,7 +344,7 @@ export function StudentEditScreen({ navigation, route }: Props) {
       phone: values.phone.trim(),
       address: emptyToNull(values.address),
       organization_name: normalizeStudentOrganization(values.organization),
-      learner_type: values.learnerType,
+      learner_types: values.learnerTypes,
       license_type: values.licenseType,
       license_number: emptyToNull(values.licenseNumber),
       license_version: emptyToNull(values.licenseVersion),
@@ -557,6 +558,17 @@ export function StudentEditScreen({ navigation, route }: Props) {
   async function onSubmit(values: StudentFormValues) {
     if (!userId) return;
 
+    if (!isEditing && !values.declarationConfirmed) {
+      form.setError("declarationConfirmed", {
+        type: "manual",
+        message: "Declaration must be checked before adding a student.",
+      });
+      scrollToBottomSoon();
+      return;
+    }
+
+    form.clearErrors("declarationConfirmed");
+
     if (isEditing) {
       Alert.alert("Save student", "Save changes to this student?", [
         { text: "Cancel", style: "cancel" },
@@ -643,6 +655,18 @@ export function StudentEditScreen({ navigation, route }: Props) {
   ]
     .filter(Boolean)
     .join(" ");
+  function toggleLearnerTypeSelection(
+    selected: StudentLearnerType[],
+    option: StudentLearnerType,
+  ) {
+    if (selected.includes(option)) {
+      return selected.filter((value) => value !== option);
+    }
+
+    return STUDENT_LEARNER_TYPE_OPTIONS.filter(
+      (candidate) => selected.includes(candidate) || candidate === option,
+    );
+  }
   const hasCustomOrganization =
     selectedOrganization.length > 0 &&
     !presetOrganizationLookup.has(selectedOrganization.toLowerCase());
@@ -793,7 +817,7 @@ export function StudentEditScreen({ navigation, route }: Props) {
 
             <Controller
               control={form.control}
-              name="learnerType"
+              name="learnerTypes"
               render={({ field, fieldState }) => (
                 <AppStack gap="sm">
                   <AppText variant="label">Type of learner</AppText>
@@ -811,9 +835,11 @@ export function StudentEditScreen({ navigation, route }: Props) {
                         width="auto"
                         className={cn(isCompact ? "min-w-[48%] flex-1" : "flex-1")}
                         variant={
-                          field.value === option ? "primary" : "secondary"
+                          field.value.includes(option) ? "primary" : "secondary"
                         }
-                        onPress={() => field.onChange(option)}
+                        onPress={() =>
+                          field.onChange(toggleLearnerTypeSelection(field.value, option))
+                        }
                       />
                     ))}
                   </View>
@@ -1189,12 +1215,24 @@ export function StudentEditScreen({ navigation, route }: Props) {
             <Controller
               control={form.control}
               name="declarationConfirmed"
-              render={({ field }) => (
-                <AppCheckbox
-                  checked={field.value}
-                  label={STUDENT_DECLARATION_COPY}
-                  onPress={() => field.onChange(!field.value)}
-                />
+              render={({ field, fieldState }) => (
+                <AppStack gap="sm">
+                  <AppCheckbox
+                    checked={field.value}
+                    label={STUDENT_DECLARATION_COPY}
+                    onPress={() => {
+                      field.onChange(!field.value);
+                      if (!field.value) {
+                        form.clearErrors("declarationConfirmed");
+                      }
+                    }}
+                  />
+                  {fieldState.error?.message ? (
+                    <AppText variant="error">
+                      {fieldState.error.message}
+                    </AppText>
+                  ) : null}
+                </AppStack>
               )}
             />
 

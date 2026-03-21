@@ -1748,3 +1748,19 @@
   - Matched the modal padding to the main screen container paddings.
 
 ---
+
+- **Date:** 2026-02-22 (Pacific/Auckland)
+- **Task:** Restricted suggestions bottom sheet
+- **Summary:**
+  - Switched the suggestions picker (task errors + feedback) to the same bottom-sheet pattern as the task repetition modal.
+  - Updated suggestions helper copy to reflect handle/backdrop dismissal.
+
+---
+
+- **Date:** 2026-02-22 (Pacific/Auckland)
+- **Task:** Bottom sheet + navbar polish
+- **Summary:**
+  - Standardized bottom sheet padding/typography (bigger headings, bolder category labels, left-aligned suggestion options).
+  - Updated header buttons so drawer root screens show hamburger only, and all other screens show back only (no navbar titles).
+
+---

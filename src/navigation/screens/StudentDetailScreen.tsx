@@ -42,7 +42,7 @@ import { useOrganizationQuery } from "../../features/organization/queries";
 import { useStudentRemindersQuery } from "../../features/reminders/queries";
 import { useStudentSessionsQuery } from "../../features/sessions/queries";
 import {
-  getStudentLearnerTypeLabel,
+  getStudentLearnerTypesLabel,
   getStudentPhotoVideoReleaseLiabilityText,
   getStudentPhotoVideoReleasePermissionText,
   getStudentReleaseOrganizationName,
@@ -224,6 +224,7 @@ export function StudentDetailScreen({ navigation, route }: Props) {
     getStudentPhotoVideoReleasePermissionText(releaseOrganizationName);
   const photoVideoReleaseLiabilityText =
     getStudentPhotoVideoReleaseLiabilityText(releaseOrganizationName);
+  const showConsentSections = Boolean(student?.declaration_confirmed);
   const isArchived = Boolean(student?.archived_at);
   const notes = student?.notes?.trim() ? student.notes.trim() : "";
   const sessionCount = sessionsQuery.data?.length ?? 0;
@@ -655,7 +656,7 @@ export function StudentDetailScreen({ navigation, route }: Props) {
                     <DetailValueField
                       className="w-full"
                       label="Type of learner"
-                      value={getStudentLearnerTypeLabel(student.learner_type)}
+                      value={getStudentLearnerTypesLabel(student.learner_types)}
                     />
                   </AppCard>
 
@@ -814,35 +815,39 @@ export function StudentDetailScreen({ navigation, route }: Props) {
                   </AppCard>
                 ) : null}
 
-                <AppCard className="gap-3">
-                  <AppText variant="heading">
-                    Photo and Video Release Permission
-                  </AppText>
-                  <AppCheckbox
-                    readOnly
-                    checked={student.photo_video_release_consent}
-                    label={photoVideoReleasePermissionText}
-                  />
-                  <AppCheckbox
-                    readOnly
-                    checked={student.photo_video_release_liability_waiver}
-                    label={photoVideoReleaseLiabilityText}
-                  />
-                </AppCard>
+                {showConsentSections ? (
+                  <AppCard className="gap-3">
+                    <AppText variant="heading">
+                      Photo and Video Release Permission
+                    </AppText>
+                    <AppCheckbox
+                      readOnly
+                      checked={student.photo_video_release_consent}
+                      label={photoVideoReleasePermissionText}
+                    />
+                    <AppCheckbox
+                      readOnly
+                      checked={student.photo_video_release_liability_waiver}
+                      label={photoVideoReleaseLiabilityText}
+                    />
+                  </AppCard>
+                ) : null}
 
-                <AppCard className="gap-3">
-                  <AppText variant="heading">Declaration</AppText>
-                  <AppCheckbox
-                    readOnly
-                    checked={student.declaration_confirmed}
-                    label={STUDENT_DECLARATION_COPY}
-                  />
-                  <DetailValueField
-                    className="w-full"
-                    label="Full name"
-                    value={`${student.first_name} ${student.last_name}`.trim() || "-"}
-                  />
-                </AppCard>
+                {showConsentSections ? (
+                  <AppCard className="gap-3">
+                    <AppText variant="heading">Declaration</AppText>
+                    <AppCheckbox
+                      readOnly
+                      checked={student.declaration_confirmed}
+                      label={STUDENT_DECLARATION_COPY}
+                    />
+                    <DetailValueField
+                      className="w-full"
+                      label="Full name"
+                      value={`${student.first_name} ${student.last_name}`.trim() || "-"}
+                    />
+                  </AppCard>
+                ) : null}
                 </AppStack>
               </View>
             </>
