@@ -1788,3 +1788,19 @@
   - Forced Stage 2 (when enabled) to start on a new PDF page.
 
 ---
+
+- **Date:** 2026-02-22 (Pacific/Auckland)
+- **Task:** Organization email setting
+- **Summary:**
+  - Added organization email field + edit screen in Settings.
+  - Displayed the org email in the Organization block and added a "Change organization email" action.
+
+---
+
+- **Date:** 2026-02-22 (Pacific/Auckland)
+- **Task:** Home buttons + email assessment PDFs
+- **Summary:**
+  - Rearranged Home quick actions into a 3x2 grid (Students/Lessons, Assessments/Sessions, Google Maps bottom-right).
+  - Added an "Email student" action in Assessment History to email PDFs to the student and the organization.
+
+---

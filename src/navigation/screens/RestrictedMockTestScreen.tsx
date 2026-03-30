@@ -26,6 +26,7 @@ import { AppBottomSheetModal } from "../../components/AppBottomSheetModal";
 import { AppCard } from "../../components/AppCard";
 import { AppCollapsibleCard } from "../../components/AppCollapsibleCard";
 import { AppDateInput } from "../../components/AppDateInput";
+import { AppImage } from "../../components/AppImage";
 import { AppInput } from "../../components/AppInput";
 import { AppStack } from "../../components/AppStack";
 import { AppText } from "../../components/AppText";
@@ -43,6 +44,7 @@ import {
   restrictedMockTestTaskCriticalErrorSuggestions,
   restrictedMockTestTaskImmediateFailureErrorSuggestions,
   restrictedMockTestTaskItems,
+  restrictedMockTestTaskMedia,
   type RestrictedMockTestStageId,
   type RestrictedMockTestTaskId,
   type RestrictedMockTestTaskItemId,
@@ -468,6 +470,10 @@ export function RestrictedMockTestScreen({ navigation, route }: Props) {
   }, [activeTask, stagesState]);
 
   const activeTaskDef = activeTaskDefinition?.taskDef ?? null;
+  const activeTaskMedia = useMemo(() => {
+    if (!activeTask) return null;
+    return restrictedMockTestTaskMedia[activeTask.taskId] ?? null;
+  }, [activeTask]);
 
   const saving = createAssessment.isPending;
 
@@ -1415,86 +1421,103 @@ export function RestrictedMockTestScreen({ navigation, route }: Props) {
               const previewFaults = recordedFaults + selectedFaults;
 
               return (
-                <View className="flex-row items-start justify-between gap-3">
-                  <View className="flex-1">
-                    <AppText className="!text-[22px]" variant="heading">
-                      {activeTaskDef.name}
-                    </AppText>
-                    <View className="mt-2 flex-row flex-wrap items-center gap-x-4 gap-y-1">
-                      <AppText className="text-xl !text-blue-600 dark:!text-blue-400" variant="body">
-                        Repetitions: {activeTaskState.repetitions ?? 0}
+                <>
+                  <View className="flex-row items-start justify-between gap-3">
+                    <View className="flex-1">
+                      <AppText className="!text-[22px]" variant="heading">
+                        {activeTaskDef.name}
                       </AppText>
-                      <AppText className="text-xl !text-red-600 dark:!text-red-400" variant="body">
-                        Faults: {previewFaults}
-                      </AppText>
+                      <View className="mt-2 flex-row flex-wrap items-center gap-x-4 gap-y-1">
+                        <AppText className="text-xl !text-blue-600 dark:!text-blue-400" variant="body">
+                          Repetitions: {activeTaskState.repetitions ?? 0}
+                        </AppText>
+                        <AppText className="text-xl !text-red-600 dark:!text-red-400" variant="body">
+                          Faults: {previewFaults}
+                        </AppText>
+                      </View>
                     </View>
+
+                    {activeTaskMedia ? (
+                      <View
+                        className={cn(
+                          "shrink-0 overflow-hidden rounded-2xl border border-border bg-background dark:border-borderDark dark:bg-backgroundDark",
+                          isCompact ? "h-[104px] w-[132px]" : "h-[118px] w-[168px]",
+                        )}
+                      >
+                        <AppImage
+                          source={activeTaskMedia.source}
+                          accessible
+                          accessibilityRole="image"
+                          accessibilityLabel={activeTaskMedia.accessibilityLabel}
+                          resizeMode="contain"
+                          className="h-full w-full"
+                        />
+                      </View>
+                    ) : null}
                   </View>
 
-                  <View className="items-end gap-2">
-                    <AppButton
-                      width="auto"
-                      variant="primary"
-                      className="bg-green-600 border-green-600 dark:bg-green-500 dark:border-green-500"
-                      label="Record Repetition"
-                      icon={Save}
-                      onPress={() => {
-                        if (openTaskSuggestions) setOpenTaskSuggestions(null);
-                        const stageId = activeTask.stageId;
-                        const taskId = activeTask.taskId;
-                        const taskName = activeTaskDef.name;
-                        const nextCount = (activeTaskState.repetitions ?? 0) + 1;
-                        Alert.alert(
-                          "Record repetition?",
-                          `Save repetition #${nextCount} for "${taskName}"?`,
-                          [
-                            { text: "Cancel", style: "cancel" },
-                            {
-                              text: "Record",
-                              onPress: () => {
-                                Keyboard.dismiss();
-                                setStagesState((prev) =>
-                                  updateTaskState(prev, stageId, taskId, (task) => {
-                                    const nextItems: Record<RestrictedMockTestTaskItemId, number> = {
-                                      ...task.items,
-                                    };
+                  <AppButton
+                    variant="primary"
+                    className="mt-4 bg-green-600 border-green-600 dark:bg-green-500 dark:border-green-500"
+                    label="Record Repetition"
+                    icon={Save}
+                    onPress={() => {
+                      if (openTaskSuggestions) setOpenTaskSuggestions(null);
+                      const stageId = activeTask.stageId;
+                      const taskId = activeTask.taskId;
+                      const taskName = activeTaskDef.name;
+                      const nextCount = (activeTaskState.repetitions ?? 0) + 1;
+                      Alert.alert(
+                        "Record repetition?",
+                        `Save repetition #${nextCount} for "${taskName}"?`,
+                        [
+                          { text: "Cancel", style: "cancel" },
+                          {
+                            text: "Record",
+                            onPress: () => {
+                              Keyboard.dismiss();
+                              setStagesState((prev) =>
+                                updateTaskState(prev, stageId, taskId, (task) => {
+                                  const nextItems: Record<RestrictedMockTestTaskItemId, number> = {
+                                    ...task.items,
+                                  };
 
-                                    restrictedMockTestTaskItems.forEach((item) => {
-                                      if (taskModalItems[item.id] === "fault") {
-                                        nextItems[item.id] = (nextItems[item.id] ?? 0) + 1;
-                                      }
-                                    });
+                                  restrictedMockTestTaskItems.forEach((item) => {
+                                    if (taskModalItems[item.id] === "fault") {
+                                      nextItems[item.id] = (nextItems[item.id] ?? 0) + 1;
+                                    }
+                                  });
 
-                                    return {
-                                      ...task,
-                                      repetitions: (task.repetitions ?? 0) + 1,
-                                      items: nextItems,
-                                      repetitionErrors: [
-                                        ...(task.repetitionErrors ?? []),
-                                        {
-                                          criticalErrors: task.criticalErrors ?? "",
-                                          immediateFailureErrors: task.immediateFailureErrors ?? "",
-                                        },
-                                      ],
-                                      criticalErrors: "",
-                                      immediateFailureErrors: "",
-                                    };
-                                  }),
-                                );
-                                const cleared = createEmptyItems();
-                                setTaskModalItems(cleared);
-                                setTaskModalDrafts((drafts) => ({
-                                  ...drafts,
-                                  [taskModalDraftKey(stageId, taskId)]: cleared,
-                                }));
-                                setOpenTaskSuggestions(null);
-                              },
+                                  return {
+                                    ...task,
+                                    repetitions: (task.repetitions ?? 0) + 1,
+                                    items: nextItems,
+                                    repetitionErrors: [
+                                      ...(task.repetitionErrors ?? []),
+                                      {
+                                        criticalErrors: task.criticalErrors ?? "",
+                                        immediateFailureErrors: task.immediateFailureErrors ?? "",
+                                      },
+                                    ],
+                                    criticalErrors: "",
+                                    immediateFailureErrors: "",
+                                  };
+                                }),
+                              );
+                              const cleared = createEmptyItems();
+                              setTaskModalItems(cleared);
+                              setTaskModalDrafts((drafts) => ({
+                                ...drafts,
+                                [taskModalDraftKey(stageId, taskId)]: cleared,
+                              }));
+                              setOpenTaskSuggestions(null);
                             },
-                          ],
-                        );
-                      }}
-                    />
-                  </View>
-                </View>
+                          },
+                        ],
+                      );
+                    }}
+                  />
+                </>
               );
             })()}
 

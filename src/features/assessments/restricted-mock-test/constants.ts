@@ -1,3 +1,5 @@
+import type { ImageSourcePropType } from "react-native";
+
 export const restrictedMockTestTaskItems = [
   { id: "observation", label: "Observation" },
   { id: "signalling", label: "Signalling" },
@@ -61,6 +63,19 @@ export const restrictedMockTestStages = [
 
 export type RestrictedMockTestStageId = (typeof restrictedMockTestStages)[number]["id"];
 export type RestrictedMockTestTaskId = (typeof restrictedMockTestStages)[number]["tasks"][number]["id"];
+
+export type RestrictedMockTestTaskMedia = {
+  source: ImageSourcePropType;
+  accessibilityLabel: string;
+};
+
+export const restrictedMockTestTaskMedia: Partial<Record<RestrictedMockTestTaskId, RestrictedMockTestTaskMedia>> = {
+  s1_rt: {
+    source: require("../../../../assets/mocktest-images/restricted/s1-rt-givingway.jpg"),
+    accessibilityLabel:
+      "Reference diagram for Stage 1 right turn giving way at a T intersection with stop control.",
+  },
+};
 
 export const restrictedMockTestLegacyCriticalErrors = [
   "Too slow",

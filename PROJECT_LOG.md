@@ -1,5 +1,21 @@
 # PROJECT_LOG.md
 
+- **Date:** 2026-03-30 (Pacific/Auckland)
+- **Task:** Refine restricted task image layout
+- **Summary:**
+  - Moved the Stage 1 `Right turn giving way` image into the top-right of the task bottom sheet header.
+  - Removed the extra task-reference text/wrapper and shifted `Record Repetition` into its own full-width row below the header.
+
+---
+
+- **Date:** 2026-03-30 (Pacific/Auckland)
+- **Task:** Restricted task reference image
+- **Summary:**
+  - Added a task-media registry for the Restricted mock test and attached the Stage 1 `Right turn giving way` reference image.
+  - Rendered the reference image near the top of the task bottom sheet with tablet-friendly sizing and accessibility copy.
+
+---
+
 - **Date:** 2026-03-21 (Pacific/Auckland)
 - **Task:** Assessment keyboard avoidance
 - **Summary:**
@@ -138,19 +154,3 @@
 - **Summary:**
   - Surfaced Resend error messages in the Edge Function response for easier diagnosis.
   - Logged provider failures in Supabase Edge Function logs.
-
----
-
-- **Date:** 2026-02-22 (Pacific/Auckland)
-- **Task:** Home buttons + email assessment PDFs
-- **Summary:**
-  - Rearranged Home quick actions into a 3x2 grid (Students/Lessons, Assessments/Sessions, Google Maps bottom-right).
-  - Added an "Email student" action in Assessment History to email PDFs to the student and the organization.
-
----
-
-- **Date:** 2026-02-22 (Pacific/Auckland)
-- **Task:** Organization email setting
-- **Summary:**
-  - Added organization email field + edit screen in Settings.
-  - Displayed the org email in the Organization block and added a "Change organization email" action.
