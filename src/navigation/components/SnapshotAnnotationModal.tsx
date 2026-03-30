@@ -2,9 +2,9 @@ import type { GestureResponderHandlers, LayoutChangeEvent } from "react-native";
 import { Image, Modal, Pressable, StyleSheet, View } from "react-native";
 import { Minus, Redo2, Undo2 } from "lucide-react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
-import Svg, { Polyline as SvgPolyline, Text as SvgText } from "react-native-svg";
+import Svg, { Polyline as SvgPolyline } from "react-native-svg";
 
-import type { SnapshotPoint, SnapshotStroke, SnapshotText } from "../../features/map-annotations/codec";
+import type { SnapshotPoint, SnapshotStroke } from "../../features/map-annotations/codec";
 import { AppButton } from "../../components/AppButton";
 import { AppInput } from "../../components/AppInput";
 import { AppText } from "../../components/AppText";
@@ -17,27 +17,19 @@ type Props = {
   title: string;
   notes: string;
   strokes: SnapshotStroke[];
-  texts: SnapshotText[];
   activeStroke: SnapshotPoint[];
   activeColor: string;
   lineWidth: number;
   colorOptions: readonly string[];
   widthOptions: readonly number[];
-  textDraft: string;
-  textSize: number;
-  textSizeOptions: readonly number[];
-  placingText: boolean;
   saving: boolean;
   canUndo: boolean;
   canRedo: boolean;
   onClose: () => void;
   onChangeTitle: (value: string) => void;
   onChangeNotes: (value: string) => void;
-  onChangeTextDraft: (value: string) => void;
-  onSelectTextSize: (value: number) => void;
   onSelectColor: (value: string) => void;
   onSelectWidth: (value: number) => void;
-  onToggleTextPlacement: () => void;
   onUndo: () => void;
   onRedo: () => void;
   onClear: () => void;
@@ -56,27 +48,19 @@ export function SnapshotAnnotationModal({
   title,
   notes,
   strokes,
-  texts,
   activeStroke,
   activeColor,
   lineWidth,
   colorOptions,
   widthOptions,
-  textDraft,
-  textSize,
-  textSizeOptions,
-  placingText,
   saving,
   canUndo,
   canRedo,
   onClose,
   onChangeTitle,
   onChangeNotes,
-  onChangeTextDraft,
-  onSelectTextSize,
   onSelectColor,
   onSelectWidth,
-  onToggleTextPlacement,
   onUndo,
   onRedo,
   onClear,
@@ -144,36 +128,6 @@ export function SnapshotAnnotationModal({
                 );
               })}
             </View>
-
-            <AppInput
-              label="Text label"
-              placeholder="e.g. Check mirrors"
-              value={textDraft}
-              onChangeText={onChangeTextDraft}
-            />
-            <View className="gap-2">
-              <AppText variant="label">Text size</AppText>
-              <View className="flex-row flex-wrap gap-2">
-                {textSizeOptions.map((sizeOption) => {
-                  const selected = sizeOption === textSize;
-                  return (
-                    <AppButton
-                      key={`text-size-${sizeOption}`}
-                      width="auto"
-                      variant={selected ? "primary" : "secondary"}
-                      label={`${sizeOption}px`}
-                      onPress={() => onSelectTextSize(sizeOption)}
-                    />
-                  );
-                })}
-              </View>
-            </View>
-            <AppButton
-              width="auto"
-              variant={placingText ? "primary" : "secondary"}
-              label={placingText ? "Tap image to place text" : "Place text"}
-              onPress={onToggleTextPlacement}
-            />
           </View>
 
           <View
@@ -212,21 +166,6 @@ export function SnapshotAnnotationModal({
                   strokeDasharray="8 6"
                 />
               ) : null}
-
-              {texts.map((textItem) => (
-                <SvgText
-                  key={textItem.id}
-                  x={textItem.x}
-                  y={textItem.y}
-                  fill={textItem.color}
-                  stroke="#000000"
-                  strokeWidth={0.4}
-                  fontSize={textItem.size}
-                  fontWeight="600"
-                >
-                  {textItem.text}
-                </SvgText>
-              ))}
             </Svg>
 
             <View style={StyleSheet.absoluteFillObject} {...panHandlers} />

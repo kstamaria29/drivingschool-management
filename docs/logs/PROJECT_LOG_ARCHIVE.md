@@ -1827,3 +1827,9 @@
   - Added a green `success` button variant and applied it to "Email student" across all assessment history views.
 
 ---
+
+- **Date:** 2026-02-22 (Pacific/Auckland)
+- **Task:** Submit and email student
+- **Summary:**
+  - Added a "Submit and Email student" option to the submit confirmation modal for all 3 assessments.
+  - Implemented submit + PDF generation + email sending via the `send-assessment-email` Edge Function.

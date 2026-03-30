@@ -1,6 +1,14 @@
 # PROJECT_LOG.md
 
 - **Date:** 2026-03-30 (Pacific/Auckland)
+- **Task:** Remove snapshot annotation text tools
+- **Summary:**
+  - Removed the snapshot annotation text label, text size, and place-text controls from the Google Maps snapshot editor modal.
+  - Simplified snapshot saving so new annotations require drawn strokes while older saved text overlays still preview correctly.
+
+---
+
+- **Date:** 2026-03-30 (Pacific/Auckland)
 - **Task:** Reposition repetition viewer button
 - **Summary:**
   - Moved the `View recorded repetitions` button into the left-side header gap under the repetition/fault stats.
@@ -147,11 +155,3 @@
 - **Summary:**
   - Updated the submit confirmation modal so "Submit and Email student" uses green text styling (matching "Submit and Generate PDF").
   - Added a blue Close button with icon to the bottom sheet modal footer (outside the scrollable content).
-
----
-
-- **Date:** 2026-02-22 (Pacific/Auckland)
-- **Task:** Submit and email student
-- **Summary:**
-  - Added a "Submit and Email student" option to the submit confirmation modal for all 3 assessments.
-  - Implemented submit + PDF generation + email sending via the `send-assessment-email` Edge Function.

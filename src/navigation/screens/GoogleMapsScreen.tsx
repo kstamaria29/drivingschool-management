@@ -36,7 +36,6 @@ import { useCurrentUser } from "../../features/auth/current-user";
 import {
   DEFAULT_DRAW_COLOR,
   DEFAULT_DRAW_WIDTH,
-  DEFAULT_TEXT_SIZE,
   parseSnapshotAnnotation,
   serializeSnapshotAnnotation,
   type SnapshotAnnotationContent,
@@ -100,7 +99,6 @@ const DRAW_COLORS = [
   "#eab308",
 ] as const;
 const DRAW_WIDTH_OPTIONS = [2, 4, 6, 8] as const;
-const SNAPSHOT_TEXT_SIZE_OPTIONS = [12, 16, 20, 24, 28] as const;
 const SNAPSHOT_CAPTURE_SIZE = 1080;
 const SNAPSHOT_CAPTURE_QUALITY = 0.65;
 const TABLET_MIN_WIDTH = 600;
@@ -317,9 +315,6 @@ export function GoogleMapsScreen(_props: Props) {
   const [activeSnapshotRedoPoints, setActiveSnapshotRedoPoints] = useState<SnapshotPoint[]>([]);
   const [snapshotColor, setSnapshotColor] = useState<string>(DEFAULT_DRAW_COLOR);
   const [snapshotLineWidth, setSnapshotLineWidth] = useState<number>(DEFAULT_DRAW_WIDTH);
-  const [snapshotTextDraft, setSnapshotTextDraft] = useState("");
-  const [snapshotTextSize, setSnapshotTextSize] = useState<number>(DEFAULT_TEXT_SIZE);
-  const [snapshotTextPlacementEnabled, setSnapshotTextPlacementEnabled] = useState(false);
   const [snapshotCanvasSize, setSnapshotCanvasSize] = useState<SnapshotCanvasSize>({
     width: 0,
     height: 0,
@@ -717,9 +712,6 @@ export function GoogleMapsScreen(_props: Props) {
     setActiveSnapshotRedoPoints([]);
     setSnapshotColor(DEFAULT_DRAW_COLOR);
     setSnapshotLineWidth(DEFAULT_DRAW_WIDTH);
-    setSnapshotTextDraft("");
-    setSnapshotTextSize(DEFAULT_TEXT_SIZE);
-    setSnapshotTextPlacementEnabled(false);
     setSnapshotCanvasSize({ width: 0, height: 0 });
   }
 
@@ -752,9 +744,6 @@ export function GoogleMapsScreen(_props: Props) {
       setActiveSnapshotRedoPoints([]);
       setSnapshotColor(DEFAULT_DRAW_COLOR);
       setSnapshotLineWidth(DEFAULT_DRAW_WIDTH);
-      setSnapshotTextDraft("");
-      setSnapshotTextSize(DEFAULT_TEXT_SIZE);
-      setSnapshotTextPlacementEnabled(false);
       setSnapshotCanvasSize({ width: 0, height: 0 });
       setSnapshotEditorVisible(true);
     } catch (error) {
@@ -833,7 +822,6 @@ export function GoogleMapsScreen(_props: Props) {
 
     setActiveSnapshotStroke([]);
     setActiveSnapshotRedoPoints([]);
-    setSnapshotTextPlacementEnabled(false);
   }
 
   async function saveSnapshotAnnotation() {
@@ -856,8 +844,8 @@ export function GoogleMapsScreen(_props: Props) {
           ]
         : draft.strokes;
 
-    if (finalStrokes.length === 0 && draft.texts.length === 0) {
-      Alert.alert("No annotation", "Add at least one stroke or text label before saving.");
+    if (finalStrokes.length === 0) {
+      Alert.alert("No annotation", "Add at least one stroke before saving.");
       return;
     }
 
@@ -982,39 +970,11 @@ export function GoogleMapsScreen(_props: Props) {
             snapshotCanvasSize,
           );
 
-          if (snapshotTextPlacementEnabled) {
-            const label = snapshotTextDraft.trim();
-            if (!label) {
-              Alert.alert("Enter text", "Type text first, then tap the image to place it.");
-              setSnapshotTextPlacementEnabled(false);
-              return;
-            }
-
-            setSnapshotHistory((history) =>
-              pushHistoryState(history, {
-                ...history.present,
-                texts: [
-                  ...history.present.texts,
-                  {
-                    id: createLocalId("snapshot_text"),
-                    text: label,
-                    color: snapshotColor,
-                    size: snapshotTextSize,
-                    x: startPoint.x,
-                    y: startPoint.y,
-                  },
-                ],
-              }),
-            );
-            setSnapshotTextPlacementEnabled(false);
-            return;
-          }
-
           setActiveSnapshotRedoPoints([]);
           setActiveSnapshotStroke([startPoint]);
         },
         onPanResponderMove: (event) => {
-          if (!snapshotEditorVisible || snapshotTextPlacementEnabled) return;
+          if (!snapshotEditorVisible) return;
 
           const nextPoint = normalizeSnapshotPoint(
             event.nativeEvent.locationX,
@@ -1038,9 +998,6 @@ export function GoogleMapsScreen(_props: Props) {
       snapshotColor,
       snapshotEditorVisible,
       snapshotLineWidth,
-      snapshotTextDraft,
-      snapshotTextSize,
-      snapshotTextPlacementEnabled,
     ],
   );
 
@@ -1305,27 +1262,19 @@ export function GoogleMapsScreen(_props: Props) {
       title={snapshotTitle}
       notes={snapshotNotes}
       strokes={snapshotHistory.present.strokes}
-      texts={snapshotHistory.present.texts}
       activeStroke={activeSnapshotStroke}
       activeColor={snapshotColor}
       lineWidth={snapshotLineWidth}
       colorOptions={DRAW_COLORS}
       widthOptions={DRAW_WIDTH_OPTIONS}
-      textDraft={snapshotTextDraft}
-      textSize={snapshotTextSize}
-      textSizeOptions={SNAPSHOT_TEXT_SIZE_OPTIONS}
-      placingText={snapshotTextPlacementEnabled}
       saving={createMapAnnotation.isPending}
       canUndo={snapshotCanUndo}
       canRedo={snapshotCanRedo}
       onClose={closeSnapshotEditor}
       onChangeTitle={setSnapshotTitle}
       onChangeNotes={setSnapshotNotes}
-      onChangeTextDraft={setSnapshotTextDraft}
-      onSelectTextSize={setSnapshotTextSize}
       onSelectColor={setSnapshotColor}
       onSelectWidth={setSnapshotLineWidth}
-      onToggleTextPlacement={() => setSnapshotTextPlacementEnabled((previous) => !previous)}
       onUndo={undoSnapshotAction}
       onRedo={redoSnapshotAction}
       onClear={clearSnapshotDraft}
