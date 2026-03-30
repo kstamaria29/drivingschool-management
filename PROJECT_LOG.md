@@ -1,6 +1,22 @@
 # PROJECT_LOG.md
 
 - **Date:** 2026-03-31 (Pacific/Auckland)
+- **Task:** Align snapshot modal footer actions
+- **Summary:**
+  - Moved the snapshot modal undo, redo, clear, and save actions onto a single footer row.
+  - Kept the existing button behaviors while tightening the footer layout.
+
+---
+
+- **Date:** 2026-03-31 (Pacific/Auckland)
+- **Task:** Refine map annotations card layout
+- **Summary:**
+  - Moved the `Saved Snapshots` button into the left column under `Map Annotations` beside the camera button.
+  - Removed the extra snapshot count/helper copy from the main Google Maps annotations card.
+
+---
+
+- **Date:** 2026-03-31 (Pacific/Auckland)
 - **Task:** Move main map snapshots into modal
 - **Summary:**
   - Replaced the inline main-map snapshot list with a `Saved Snapshots` button under `Main Map Annotations`.
@@ -139,19 +155,3 @@
 - **Task:** Daily digest lesson lookup
 - **Summary:**
   - Fixed `get_lessons_for_local_date` to join through `notification_settings` so daily digests use the same org-scoped lesson selection as upcoming reminders.
-
----
-
-- **Date:** 2026-02-24 (Pacific/Auckland)
-- **Task:** Daily digest reliability
-- **Summary:**
-  - Prevented daily digest push bodies from falling back to "No lessons scheduled today" when the lesson lookup RPC fails.
-  - Avoided inserting digest deliveries on lookup failure so the next cron run can retry.
-
----
-
-- **Date:** 2026-02-23 (Pacific/Auckland)
-- **Task:** Safe area for bottom overlays
-- **Summary:**
-  - Added safe-area bottom padding to the shared bottom sheet modal so content won't sit under the system navigation bar.
-  - Made the licence image gallery modal respect system insets.

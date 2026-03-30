@@ -1198,7 +1198,15 @@ export function GoogleMapsScreen(_props: Props) {
   const mapAnnotationsCard = !draftCoordinate && !selectedPin ? (
     <AppCard className="gap-3">
       <View className="flex-row items-start justify-between gap-3 px-1 pt-1">
-        <AppText variant="heading">Main Map Annotations</AppText>
+        <View className="flex-1 gap-2">
+          <AppText variant="heading">Map Annotations</AppText>
+          <AppButton
+            width="auto"
+            variant="secondary"
+            label="Saved Snapshots"
+            onPress={() => setMainMapSavedSnapshotsVisible(true)}
+          />
+        </View>
         <AppButton
           width="auto"
           size="icon"
@@ -1213,19 +1221,9 @@ export function GoogleMapsScreen(_props: Props) {
         />
       </View>
 
-      <AppText variant="caption">Snapshots: {mapLevelSnapshotAnnotations.length}</AppText>
-
-      <AppButton
-        variant="secondary"
-        label="Saved Snapshots"
-        onPress={() => setMainMapSavedSnapshotsVisible(true)}
-      />
-
       {mapLevelSnapshotAnnotations.length === 0 ? (
         <AppText variant="caption">Tip: Use the camera button to annotate the main map.</AppText>
-      ) : (
-        <AppText variant="caption">Open Saved Snapshots to preview or delete main-map captures.</AppText>
-      )}
+      ) : null}
     </AppCard>
   ) : null;
 

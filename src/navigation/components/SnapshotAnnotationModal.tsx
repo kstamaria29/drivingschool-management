@@ -171,7 +171,7 @@ export function SnapshotAnnotationModal({
             <View style={StyleSheet.absoluteFillObject} {...panHandlers} />
           </View>
 
-          <View className="gap-2">
+          <View className="flex-row items-center justify-between gap-3">
             <View className="flex-row flex-wrap gap-2">
               <AppButton
                 width="auto"
@@ -196,14 +196,12 @@ export function SnapshotAnnotationModal({
               <AppButton width="auto" variant="secondary" label="Clear" onPress={onClear} />
             </View>
 
-            <View className="flex-row justify-end">
-              <AppButton
-                width="auto"
-                label={saving ? "Saving..." : "Save snapshot"}
-                disabled={saving}
-                onPress={onSave}
-              />
-            </View>
+            <AppButton
+              width="auto"
+              label={saving ? "Saving..." : "Save snapshot"}
+              disabled={saving}
+              onPress={onSave}
+            />
           </View>
         </View>
       </SafeAreaView>
