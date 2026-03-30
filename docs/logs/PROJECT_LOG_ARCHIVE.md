@@ -1841,3 +1841,11 @@
 - **Summary:**
   - Updated the submit confirmation modal so "Submit and Email student" uses green text styling (matching "Submit and Generate PDF").
   - Added a blue Close button with icon to the bottom sheet modal footer (outside the scrollable content).
+
+---
+
+- **Date:** 2026-02-22 (Pacific/Auckland)
+- **Task:** Navbar hamburger buttons
+- **Summary:**
+  - Updated header button logic so stack root screens show the hamburger menu even when navigation can go back.
+  - Applied this so Students/Lessons/Assessments/Sessions/Google Maps/Settings show the hamburger instead of a back button.

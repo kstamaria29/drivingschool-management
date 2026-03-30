@@ -1,5 +1,13 @@
 # PROJECT_LOG.md
 
+- **Date:** 2026-03-31 (Pacific/Auckland)
+- **Task:** Add remaining restricted task images
+- **Summary:**
+  - Mapped the remaining provided Stage 1 and Stage 2 Restricted mock test images into the shared task-media registry.
+  - Left unlisted tasks without images so only the requested task cards show reference diagrams.
+
+---
+
 - **Date:** 2026-03-30 (Pacific/Auckland)
 - **Task:** Fix snapshot preview annotation alignment
 - **Summary:**
@@ -147,11 +155,3 @@
 - **Summary:**
   - Documented enabling `pg_cron` + `pg_net` for scheduled Edge Function delivery.
   - Added sample SQL for scheduling `notifications-cron` every 5 minutes and verifying runs.
-
----
-
-- **Date:** 2026-02-22 (Pacific/Auckland)
-- **Task:** Navbar hamburger buttons
-- **Summary:**
-  - Updated header button logic so stack root screens show the hamburger menu even when navigation can go back.
-  - Applied this so Students/Lessons/Assessments/Sessions/Google Maps/Settings show the hamburger instead of a back button.

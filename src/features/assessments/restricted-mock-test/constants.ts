@@ -75,6 +75,94 @@ export const restrictedMockTestTaskMedia: Partial<Record<RestrictedMockTestTaskI
     accessibilityLabel:
       "Reference diagram for Stage 1 right turn giving way at a T intersection with stop control.",
   },
+  s1_lt: {
+    source: require("../../../../assets/mocktest-images/restricted/s1-lt-givingway.jpg"),
+    accessibilityLabel: "Reference diagram for Stage 1 left turn giving way.",
+  },
+  s1_lcr: {
+    source: require("../../../../assets/mocktest-images/restricted/s1-lanechange-right.jpg"),
+    accessibilityLabel: "Reference diagram for Stage 1 lane change right.",
+  },
+  s1_lcl: {
+    source: require("../../../../assets/mocktest-images/restricted/s1-lanechange-left.jpg"),
+    accessibilityLabel: "Reference diagram for Stage 1 lane change left.",
+  },
+  s1_rpp: {
+    source: require("../../../../assets/mocktest-images/restricted/s1-reverse-parallel-park.jpg"),
+    accessibilityLabel: "Reference diagram for Stage 1 reverse parallel park.",
+  },
+  s1_extra: {
+    source: require("../../../../assets/mocktest-images/restricted/s1-extra-task.jpg"),
+    accessibilityLabel: "Reference diagram for the Stage 1 extra task or variation.",
+  },
+  s2_rt1: {
+    source: require("../../../../assets/mocktest-images/restricted/s2-rt-givingway-1lane.jpg"),
+    accessibilityLabel: "Reference diagram for Stage 2 right turn giving way with 1 lane each way.",
+  },
+  s2_rt2: {
+    source: require("../../../../assets/mocktest-images/restricted/s2-rt-givingway-2lane.jpg"),
+    accessibilityLabel: "Reference diagram for Stage 2 right turn giving way with 2 lanes each way.",
+  },
+  s2_rtOncoming1: {
+    source: require("../../../../assets/mocktest-images/restricted/s2-rt-across-1lane.jpg"),
+    accessibilityLabel: "Reference diagram for Stage 2 right turn across 1 lane oncoming.",
+  },
+  s2_rtOncoming2: {
+    source: require("../../../../assets/mocktest-images/restricted/s2-rt-across-2lane.jpg"),
+    accessibilityLabel: "Reference diagram for Stage 2 right turn across 2 lanes oncoming.",
+  },
+  s2_lt1: {
+    source: require("../../../../assets/mocktest-images/restricted/s2-lt-givingway-1lane.jpg"),
+    accessibilityLabel: "Reference diagram for Stage 2 left turn giving way with 1 lane each way.",
+  },
+  s2_lt2: {
+    source: require("../../../../assets/mocktest-images/restricted/s2-lt-givingway-2lane.jpg"),
+    accessibilityLabel: "Reference diagram for Stage 2 left turn giving way with 2 lanes each way.",
+  },
+  s2_ltPrio: {
+    source: require("../../../../assets/mocktest-images/restricted/s2-lt-priority.jpg"),
+    accessibilityLabel: "Reference diagram for Stage 2 left turn with priority.",
+  },
+  s2_lcr: {
+    source: require("../../../../assets/mocktest-images/restricted/s2-lanechange-right.jpg"),
+    accessibilityLabel: "Reference diagram for Stage 2 lane change right.",
+  },
+  s2_lcl: {
+    source: require("../../../../assets/mocktest-images/restricted/s2-lanechange-left.jpg"),
+    accessibilityLabel: "Reference diagram for Stage 2 lane change left.",
+  },
+  s2_lcrTurn: {
+    source: require("../../../../assets/mocktest-images/restricted/s2-lanechange-right-upcomingturn.jpg"),
+    accessibilityLabel: "Reference diagram for Stage 2 lane change right for an upcoming turn.",
+  },
+  s2_lclTurn: {
+    source: require("../../../../assets/mocktest-images/restricted/s2-lanechange-left-upcomingturn.jpg"),
+    accessibilityLabel: "Reference diagram for Stage 2 lane change left for an upcoming turn.",
+  },
+  s2_merge: {
+    source: require("../../../../assets/mocktest-images/restricted/s2-merge-lanes.jpg"),
+    accessibilityLabel: "Reference diagram for Stage 2 merge lanes.",
+  },
+  s2_stMed: {
+    source: require("../../../../assets/mocktest-images/restricted/s2-straight-drive-medspeed.jpg"),
+    accessibilityLabel: "Reference diagram for Stage 2 straight drive at medium speed.",
+  },
+  s2_stArt: {
+    source: require("../../../../assets/mocktest-images/restricted/s2-straight-drive-arterial.jpg"),
+    accessibilityLabel: "Reference diagram for Stage 2 straight drive on an arterial road.",
+  },
+  s2_rbLeft: {
+    source: require("../../../../assets/mocktest-images/restricted/s2-lt-roundabout.jpg"),
+    accessibilityLabel: "Reference diagram for Stage 2 left turn at a roundabout.",
+  },
+  s2_rbRight: {
+    source: require("../../../../assets/mocktest-images/restricted/s2-rt-roundabout.jpg"),
+    accessibilityLabel: "Reference diagram for Stage 2 right turn at a roundabout.",
+  },
+  s2_rbStraight: {
+    source: require("../../../../assets/mocktest-images/restricted/s2-straight-roundabout.jpg"),
+    accessibilityLabel: "Reference diagram for Stage 2 straight through at a roundabout.",
+  },
 };
 
 export const restrictedMockTestLegacyCriticalErrors = [
