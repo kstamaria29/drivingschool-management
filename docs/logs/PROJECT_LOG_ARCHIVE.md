@@ -1833,3 +1833,11 @@
 - **Summary:**
   - Added a "Submit and Email student" option to the submit confirmation modal for all 3 assessments.
   - Implemented submit + PDF generation + email sending via the `send-assessment-email` Edge Function.
+
+---
+
+- **Date:** 2026-02-22 (Pacific/Auckland)
+- **Task:** Modal polish
+- **Summary:**
+  - Updated the submit confirmation modal so "Submit and Email student" uses green text styling (matching "Submit and Generate PDF").
+  - Added a blue Close button with icon to the bottom sheet modal footer (outside the scrollable content).

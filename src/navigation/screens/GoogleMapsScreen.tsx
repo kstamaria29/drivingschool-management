@@ -322,10 +322,6 @@ export function GoogleMapsScreen(_props: Props) {
   const lastAutoPinRunKeyRef = useRef("");
 
   const [previewSnapshotId, setPreviewSnapshotId] = useState<string | null>(null);
-  const [previewCanvasSize, setPreviewCanvasSize] = useState<SnapshotCanvasSize>({
-    width: 0,
-    height: 0,
-  });
 
   const studentsById = useMemo(
     () => new Map((studentsQuery.data ?? []).map((student) => [student.id, student])),
@@ -1032,13 +1028,6 @@ export function GoogleMapsScreen(_props: Props) {
     });
   }
 
-  function handlePreviewCanvasLayout(event: LayoutChangeEvent) {
-    setPreviewCanvasSize({
-      width: event.nativeEvent.layout.width,
-      height: event.nativeEvent.layout.height,
-    });
-  }
-
   const snapshotCanUndo = activeSnapshotStroke.length > 0 || snapshotHistory.past.length > 0;
   const snapshotCanRedo = activeSnapshotRedoPoints.length > 0 || snapshotHistory.future.length > 0;
 
@@ -1287,9 +1276,7 @@ export function GoogleMapsScreen(_props: Props) {
   const snapshotPreviewModal = (
     <SnapshotPreviewModal
       snapshot={previewSnapshot}
-      canvasSize={previewCanvasSize}
       onClose={() => setPreviewSnapshotId(null)}
-      onCanvasLayout={handlePreviewCanvasLayout}
     />
   );
   const selectedPinColorModal = (

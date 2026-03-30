@@ -1,6 +1,14 @@
 # PROJECT_LOG.md
 
 - **Date:** 2026-03-30 (Pacific/Auckland)
+- **Task:** Fix snapshot preview annotation alignment
+- **Summary:**
+  - Matched the saved snapshot preview canvas to the annotation editor's stored aspect ratio so saved circles stay on the intended map target.
+  - Scaled preview strokes and text overlays with the fitted canvas for a closer visual match to the editor modal.
+
+---
+
+- **Date:** 2026-03-30 (Pacific/Auckland)
 - **Task:** Remove snapshot annotation text tools
 - **Summary:**
   - Removed the snapshot annotation text label, text size, and place-text controls from the Google Maps snapshot editor modal.
@@ -147,11 +155,3 @@
 - **Summary:**
   - Updated header button logic so stack root screens show the hamburger menu even when navigation can go back.
   - Applied this so Students/Lessons/Assessments/Sessions/Google Maps/Settings show the hamburger instead of a back button.
-
----
-
-- **Date:** 2026-02-22 (Pacific/Auckland)
-- **Task:** Modal polish
-- **Summary:**
-  - Updated the submit confirmation modal so "Submit and Email student" uses green text styling (matching "Submit and Generate PDF").
-  - Added a blue Close button with icon to the bottom sheet modal footer (outside the scrollable content).
