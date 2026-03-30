@@ -30,6 +30,7 @@ import { AppCard } from "../../components/AppCard";
 import { AppInput } from "../../components/AppInput";
 import { AppSegmentedControl } from "../../components/AppSegmentedControl";
 import { AppText } from "../../components/AppText";
+import { SavedSnapshotsModal } from "../components/SavedSnapshotsModal";
 import { SnapshotAnnotationModal } from "../components/SnapshotAnnotationModal";
 import { SnapshotPreviewModal, type SnapshotPreview } from "../components/SnapshotPreviewModal";
 import { useCurrentUser } from "../../features/auth/current-user";
@@ -322,6 +323,7 @@ export function GoogleMapsScreen(_props: Props) {
   const lastAutoPinRunKeyRef = useRef("");
 
   const [previewSnapshotId, setPreviewSnapshotId] = useState<string | null>(null);
+  const [mainMapSavedSnapshotsVisible, setMainMapSavedSnapshotsVisible] = useState(false);
 
   const studentsById = useMemo(
     () => new Map((studentsQuery.data ?? []).map((student) => [student.id, student])),
@@ -1213,34 +1215,17 @@ export function GoogleMapsScreen(_props: Props) {
 
       <AppText variant="caption">Snapshots: {mapLevelSnapshotAnnotations.length}</AppText>
 
-      {mapLevelSnapshotAnnotations.slice(0, 4).map((annotation) => (
-        <View
-          key={annotation.id}
-          className="rounded-xl border border-border bg-background px-3 py-2 dark:border-borderDark dark:bg-backgroundDark"
-        >
-          <View className="flex-row items-center justify-between gap-2">
-            <Pressable
-              accessibilityRole="button"
-              onPress={() => setPreviewSnapshotId(annotation.id)}
-              className="flex-1"
-            >
-              <AppText variant="label">{annotation.title}</AppText>
-              <AppText variant="caption">{dayjs(annotation.createdAt).format("DD MMM YYYY, h:mm A")}</AppText>
-            </Pressable>
-
-            <AppButton
-              width="auto"
-              variant="ghost"
-              label="Delete"
-              onPress={() => confirmDeleteAnnotation(annotation.id, annotation.title)}
-            />
-          </View>
-        </View>
-      ))}
+      <AppButton
+        variant="secondary"
+        label="Saved Snapshots"
+        onPress={() => setMainMapSavedSnapshotsVisible(true)}
+      />
 
       {mapLevelSnapshotAnnotations.length === 0 ? (
         <AppText variant="caption">Tip: Use the camera button to annotate the main map.</AppText>
-      ) : null}
+      ) : (
+        <AppText variant="caption">Open Saved Snapshots to preview or delete main-map captures.</AppText>
+      )}
     </AppCard>
   ) : null;
 
@@ -1277,6 +1262,19 @@ export function GoogleMapsScreen(_props: Props) {
     <SnapshotPreviewModal
       snapshot={previewSnapshot}
       onClose={() => setPreviewSnapshotId(null)}
+    />
+  );
+  const mainMapSavedSnapshotsModal = (
+    <SavedSnapshotsModal
+      visible={mainMapSavedSnapshotsVisible}
+      snapshots={mapLevelSnapshotAnnotations}
+      deleting={deleteMapAnnotation.isPending}
+      onClose={() => setMainMapSavedSnapshotsVisible(false)}
+      onOpenSnapshot={(snapshotId) => {
+        setMainMapSavedSnapshotsVisible(false);
+        setPreviewSnapshotId(snapshotId);
+      }}
+      onDeleteSnapshot={confirmDeleteAnnotation}
     />
   );
   const selectedPinColorModal = (
@@ -1498,6 +1496,7 @@ export function GoogleMapsScreen(_props: Props) {
       </KeyboardAvoidingView>
       {snapshotEditorModal}
       {snapshotPreviewModal}
+      {mainMapSavedSnapshotsModal}
       {selectedPinColorModal}
     </>
   );

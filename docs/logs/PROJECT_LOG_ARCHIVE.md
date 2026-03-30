@@ -1849,3 +1849,11 @@
 - **Summary:**
   - Updated header button logic so stack root screens show the hamburger menu even when navigation can go back.
   - Applied this so Students/Lessons/Assessments/Sessions/Google Maps/Settings show the hamburger instead of a back button.
+
+---
+
+- **Date:** 2026-02-23 (Pacific/Auckland)
+- **Task:** Supabase cron setup docs
+- **Summary:**
+  - Documented enabling `pg_cron` + `pg_net` for scheduled Edge Function delivery.
+  - Added sample SQL for scheduling `notifications-cron` every 5 minutes and verifying runs.

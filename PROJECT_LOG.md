@@ -1,6 +1,14 @@
 # PROJECT_LOG.md
 
 - **Date:** 2026-03-31 (Pacific/Auckland)
+- **Task:** Move main map snapshots into modal
+- **Summary:**
+  - Replaced the inline main-map snapshot list with a `Saved Snapshots` button under `Main Map Annotations`.
+  - Added a saved-snapshots modal so main-map captures can be opened or deleted without crowding the Google Maps screen.
+
+---
+
+- **Date:** 2026-03-31 (Pacific/Auckland)
 - **Task:** Add remaining restricted task images
 - **Summary:**
   - Mapped the remaining provided Stage 1 and Stage 2 Restricted mock test images into the shared task-media registry.
@@ -147,11 +155,3 @@
 - **Summary:**
   - Added safe-area bottom padding to the shared bottom sheet modal so content won't sit under the system navigation bar.
   - Made the licence image gallery modal respect system insets.
-
----
-
-- **Date:** 2026-02-23 (Pacific/Auckland)
-- **Task:** Supabase cron setup docs
-- **Summary:**
-  - Documented enabling `pg_cron` + `pg_net` for scheduled Edge Function delivery.
-  - Added sample SQL for scheduling `notifications-cron` every 5 minutes and verifying runs.
