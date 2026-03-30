@@ -48,6 +48,7 @@ const taskStateSchema = z.object({
       z.object({
         criticalErrors: z.string().default(""),
         immediateFailureErrors: z.string().default(""),
+        faults: z.array(z.string()).optional().default([]),
       }),
     )
     .optional()

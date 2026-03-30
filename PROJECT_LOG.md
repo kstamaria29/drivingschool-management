@@ -1,6 +1,30 @@
 # PROJECT_LOG.md
 
 - **Date:** 2026-03-30 (Pacific/Auckland)
+- **Task:** Reposition repetition viewer button
+- **Summary:**
+  - Moved the `View recorded repetitions` button into the left-side header gap under the repetition/fault stats.
+  - Kept the separate recorded-repetitions modal and left the main `Record Repetition` action on its own row.
+
+---
+
+- **Date:** 2026-03-30 (Pacific/Auckland)
+- **Task:** Simplify repetition viewer
+- **Summary:**
+  - Replaced the inline repetition tabs with a single button in the Restricted task sheet.
+  - Added a dedicated modal that lists all recorded repetitions without crowding the main task form.
+
+---
+
+- **Date:** 2026-03-30 (Pacific/Auckland)
+- **Task:** Add live repetition tabs
+- **Summary:**
+  - Added live repetition tabs to the Restricted task bottom sheet so recorded repetitions can be reviewed during the assessment.
+  - Stored the fault buttons used for each saved repetition and surfaced them alongside the recorded critical/immediate notes.
+
+---
+
+- **Date:** 2026-03-30 (Pacific/Auckland)
 - **Task:** Refine restricted task image layout
 - **Summary:**
   - Moved the Stage 1 `Right turn giving way` image into the top-right of the task bottom sheet header.
@@ -131,26 +155,3 @@
 - **Summary:**
   - Added a "Submit and Email student" option to the submit confirmation modal for all 3 assessments.
   - Implemented submit + PDF generation + email sending via the `send-assessment-email` Edge Function.
-
----
-
-- **Date:** 2026-02-22 (Pacific/Auckland)
-- **Task:** Email student button color
-- **Summary:**
-  - Added a green `success` button variant and applied it to "Email student" across all assessment history views.
-
----
-
-- **Date:** 2026-02-22 (Pacific/Auckland)
-- **Task:** Email student for mock tests
-- **Summary:**
-  - Added the "Email student" action to Restricted and Full mock test history detail views.
-  - Disabled Download/Email/Delete actions consistently while emailing.
-
----
-
-- **Date:** 2026-02-22 (Pacific/Auckland)
-- **Task:** Assessment email error messaging
-- **Summary:**
-  - Surfaced Resend error messages in the Edge Function response for easier diagnosis.
-  - Logged provider failures in Supabase Edge Function logs.

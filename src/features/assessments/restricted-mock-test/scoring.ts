@@ -14,6 +14,7 @@ export type RestrictedMockTestTaskState = {
   repetitionErrors: Array<{
     criticalErrors: string;
     immediateFailureErrors: string;
+    faults: string[];
   }>;
   notes: string;
   repetitions: number;

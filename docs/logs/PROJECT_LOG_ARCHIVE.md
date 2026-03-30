@@ -1804,3 +1804,26 @@
   - Added an "Email student" action in Assessment History to email PDFs to the student and the organization.
 
 ---
+
+- **Date:** 2026-02-22 (Pacific/Auckland)
+- **Task:** Assessment email error messaging
+- **Summary:**
+  - Surfaced Resend error messages in the Edge Function response for easier diagnosis.
+  - Logged provider failures in Supabase Edge Function logs.
+
+---
+
+- **Date:** 2026-02-22 (Pacific/Auckland)
+- **Task:** Email student for mock tests
+- **Summary:**
+  - Added the "Email student" action to Restricted and Full mock test history detail views.
+  - Disabled Download/Email/Delete actions consistently while emailing.
+
+---
+
+- **Date:** 2026-02-22 (Pacific/Auckland)
+- **Task:** Email student button color
+- **Summary:**
+  - Added a green `success` button variant and applied it to "Email student" across all assessment history views.
+
+---
