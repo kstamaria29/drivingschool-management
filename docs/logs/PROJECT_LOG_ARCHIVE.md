@@ -1880,3 +1880,10 @@
 - **Task:** Daily digest lesson lookup
 - **Summary:**
   - Fixed `get_lessons_for_local_date` to join through `notification_settings` so daily digests use the same org-scoped lesson selection as upcoming reminders.
+
+---
+
+- **Date:** 2026-03-21 (Pacific/Auckland)
+- **Task:** Show global AGENTS guide
+- **Summary:**
+  - Retrieved the shared global `AGENTS.md` from the Codex home directory so it could be shown directly for reference.

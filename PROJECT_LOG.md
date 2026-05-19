@@ -1,6 +1,14 @@
 # PROJECT_LOG.md
 
 - **Date:** 2026-05-19 (Pacific/Auckland)
+- **Task:** Align Expo SDK 54 patches
+- **Summary:**
+  - Ran Expo's dependency fixer to align SDK 54 package patches.
+  - Updated Expo, file-system, image-picker, and notifications package versions.
+
+---
+
+- **Date:** 2026-05-19 (Pacific/Auckland)
 - **Task:** Expo and React Native version review
 - **Summary:**
   - Checked the repo's current Expo and React Native versions against current stable and prerelease releases.
@@ -149,10 +157,3 @@
 - **Summary:**
   - Added learner type, photo/video release, and declaration fields to the shared New/Edit student flow.
   - Persisted the new student fields through Supabase and displayed them on the student profile screen.
-
----
-
-- **Date:** 2026-03-21 (Pacific/Auckland)
-- **Task:** Show global AGENTS guide
-- **Summary:**
-  - Retrieved the shared global `AGENTS.md` from the Codex home directory so it could be shown directly for reference.
