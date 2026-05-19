@@ -4,7 +4,7 @@ import type { DrawerNavigationProp } from "@react-navigation/drawer";
 import type { NativeStackScreenProps } from "@react-navigation/native-stack";
 import dayjs from "dayjs";
 import { Save } from "lucide-react-native";
-import { useEffect, useMemo, useRef, useState } from "react";
+import { useEffect, useMemo, useRef, useState, type ReactElement } from "react";
 import {
   ActivityIndicator,
   Alert,
@@ -26,6 +26,7 @@ import { AppBottomSheetModal } from "../../components/AppBottomSheetModal";
 import { AppCard } from "../../components/AppCard";
 import { AppCollapsibleCard } from "../../components/AppCollapsibleCard";
 import { AppDateInput } from "../../components/AppDateInput";
+import { AppImage } from "../../components/AppImage";
 import { AppInput } from "../../components/AppInput";
 import { AppStack } from "../../components/AppStack";
 import { AppText } from "../../components/AppText";
@@ -43,6 +44,7 @@ import {
   restrictedMockTestTaskCriticalErrorSuggestions,
   restrictedMockTestTaskImmediateFailureErrorSuggestions,
   restrictedMockTestTaskItems,
+  restrictedMockTestTaskMedia,
   type RestrictedMockTestStageId,
   type RestrictedMockTestTaskId,
   type RestrictedMockTestTaskItemId,
@@ -82,6 +84,7 @@ type Stage = "details" | "confirm" | "test";
 type FaultValue = "" | "fault";
 type ActiveTask = { stageId: RestrictedMockTestStageId; taskId: RestrictedMockTestTaskId };
 type ExclusiveSection = RestrictedMockTestStageId | null;
+type CategorizedGroup = { category: string; items: string[] };
 
 const DRAFT_VERSION = 1;
 
@@ -175,6 +178,48 @@ function countSelectedLines(value: string) {
     .filter(Boolean).length;
 }
 
+function extractCategorizedGroups(value: string): CategorizedGroup[] {
+  const output = new Map<string, string[]>();
+
+  value
+    .split(/\r?\n/)
+    .map((line) => line.trim())
+    .filter(Boolean)
+    .forEach((rawLine) => {
+      const line = rawLine.replace(/^[-•\u2022]\s+/, "");
+      const match = line.match(/^(.+?)\s*-\s*(.+)$/);
+      const category = match ? match[1].trim() : "Other";
+      const item = match ? match[2].trim() : line;
+      if (!item) return;
+
+      const items = output.get(category) ?? [];
+      items.push(item);
+      output.set(category, items);
+    });
+
+  return Array.from(output.entries()).map(([category, items]) => ({ category, items }));
+}
+
+function renderCategorizedLines(value: string): ReactElement | null {
+  const groups = extractCategorizedGroups(value);
+  if (groups.length === 0) return null;
+
+  return (
+    <AppStack gap="sm">
+      {groups.map((group) => (
+        <View key={group.category} className="gap-1">
+          <AppText variant="label">{group.category}</AppText>
+          {group.items.map((item, index) => (
+            <AppText key={`${group.category}-${index}`} className="ml-3" variant="body">
+              • {item}
+            </AppText>
+          ))}
+        </View>
+      ))}
+    </AppStack>
+  );
+}
+
 export function RestrictedMockTestScreen({ navigation, route }: Props) {
   const { profile, userId } = useCurrentUser();
   const { isCompact } = useNavigationLayout();
@@ -209,6 +254,7 @@ export function RestrictedMockTestScreen({ navigation, route }: Props) {
   const [openTaskSuggestions, setOpenTaskSuggestions] = useState<
     "criticalErrors" | "immediateFailureErrors" | null
   >(null);
+  const [recordedRepetitionsModalVisible, setRecordedRepetitionsModalVisible] = useState(false);
   const [taskModalDrafts, setTaskModalDrafts] = useState<
     Record<string, Record<RestrictedMockTestTaskItemId, FaultValue>>
   >({});
@@ -360,6 +406,7 @@ export function RestrictedMockTestScreen({ navigation, route }: Props) {
     setTaskModalVisible(false);
     setActiveTask(null);
     setOpenTaskSuggestions(null);
+    setRecordedRepetitionsModalVisible(false);
     setTaskModalDrafts({});
     setOpenFeedbackSuggestions(null);
     setDraftResolvedStudentId(null);
@@ -389,6 +436,7 @@ export function RestrictedMockTestScreen({ navigation, route }: Props) {
     setTaskModalVisible(false);
     setActiveTask(null);
     setOpenTaskSuggestions(null);
+    setRecordedRepetitionsModalVisible(false);
     setTaskModalDrafts({});
     setOpenFeedbackSuggestions(null);
     setDraftResolvedStudentId(null);
@@ -468,6 +516,36 @@ export function RestrictedMockTestScreen({ navigation, route }: Props) {
   }, [activeTask, stagesState]);
 
   const activeTaskDef = activeTaskDefinition?.taskDef ?? null;
+  const activeTaskMedia = useMemo(() => {
+    if (!activeTask) return null;
+    return restrictedMockTestTaskMedia[activeTask.taskId] ?? null;
+  }, [activeTask]);
+  const activeTaskRecordedRepetitionCount = useMemo(() => {
+    if (!activeTaskState) return 0;
+    return Math.max(activeTaskState.repetitions ?? 0, activeTaskState.repetitionErrors?.length ?? 0);
+  }, [activeTaskState]);
+  const activeTaskRecordedRepetitions = useMemo(() => {
+    if (!activeTaskState) return [];
+
+    return Array.from({ length: activeTaskRecordedRepetitionCount }, (_, index) => {
+      const repetition = activeTaskState.repetitionErrors?.[index] ?? {
+        criticalErrors: "",
+        immediateFailureErrors: "",
+        faults: [],
+      };
+
+      const faultLabels = (repetition.faults ?? []).map((faultId) => {
+        return restrictedMockTestTaskItems.find((item) => item.id === faultId)?.label ?? faultId;
+      });
+
+      return {
+        index,
+        faultLabels,
+        criticalErrors: repetition.criticalErrors ?? "",
+        immediateFailureErrors: repetition.immediateFailureErrors ?? "",
+      };
+    });
+  }, [activeTaskRecordedRepetitionCount, activeTaskState]);
 
   const saving = createAssessment.isPending;
 
@@ -782,6 +860,7 @@ export function RestrictedMockTestScreen({ navigation, route }: Props) {
     setActiveTask({ stageId, taskId });
     setTaskModalItems(taskModalDrafts[key] ?? createEmptyItems());
     setOpenTaskSuggestions(null);
+    setRecordedRepetitionsModalVisible(false);
     setTaskModalVisible(true);
   }
 
@@ -792,17 +871,82 @@ export function RestrictedMockTestScreen({ navigation, route }: Props) {
       setTaskModalDrafts((prev) => ({ ...prev, [key]: taskModalItems }));
     }
     setOpenTaskSuggestions(null);
+    setRecordedRepetitionsModalVisible(false);
     setTaskModalVisible(false);
   }
 
   function finalizeCloseTaskModal() {
     setActiveTask(null);
     setOpenTaskSuggestions(null);
+    setRecordedRepetitionsModalVisible(false);
   }
 
   function closeSubmitConfirmModal() {
     setSubmitConfirmVisible(false);
     setPendingSubmitValues(null);
+  }
+
+  function recordActiveTaskRepetition() {
+    if (!activeTask || !activeTaskDef || !activeTaskState) return;
+
+    if (openTaskSuggestions) setOpenTaskSuggestions(null);
+    const stageId = activeTask.stageId;
+    const taskId = activeTask.taskId;
+    const taskName = activeTaskDef.name;
+    const nextCount = (activeTaskState.repetitions ?? 0) + 1;
+    const selectedFaultIds = restrictedMockTestTaskItems
+      .filter((item) => taskModalItems[item.id] === "fault")
+      .map((item) => item.id);
+
+    Alert.alert(
+      "Record repetition?",
+      `Save repetition #${nextCount} for "${taskName}"?`,
+      [
+        { text: "Cancel", style: "cancel" },
+        {
+          text: "Record",
+          onPress: () => {
+            Keyboard.dismiss();
+            setStagesState((prev) =>
+              updateTaskState(prev, stageId, taskId, (task) => {
+                const nextItems: Record<RestrictedMockTestTaskItemId, number> = {
+                  ...task.items,
+                };
+
+                restrictedMockTestTaskItems.forEach((item) => {
+                  if (taskModalItems[item.id] === "fault") {
+                    nextItems[item.id] = (nextItems[item.id] ?? 0) + 1;
+                  }
+                });
+
+                return {
+                  ...task,
+                  repetitions: (task.repetitions ?? 0) + 1,
+                  items: nextItems,
+                  repetitionErrors: [
+                    ...(task.repetitionErrors ?? []),
+                    {
+                      criticalErrors: task.criticalErrors ?? "",
+                      immediateFailureErrors: task.immediateFailureErrors ?? "",
+                      faults: selectedFaultIds,
+                    },
+                  ],
+                  criticalErrors: "",
+                  immediateFailureErrors: "",
+                };
+              }),
+            );
+            const cleared = createEmptyItems();
+            setTaskModalItems(cleared);
+            setTaskModalDrafts((drafts) => ({
+              ...drafts,
+              [taskModalDraftKey(stageId, taskId)]: cleared,
+            }));
+            setOpenTaskSuggestions(null);
+          },
+        },
+      ],
+    );
   }
 
   const header = (
@@ -1415,11 +1559,12 @@ export function RestrictedMockTestScreen({ navigation, route }: Props) {
               const previewFaults = recordedFaults + selectedFaults;
 
               return (
-                <View className="flex-row items-start justify-between gap-3">
-                  <View className="flex-1">
-                    <AppText className="!text-[22px]" variant="heading">
-                      {activeTaskDef.name}
-                    </AppText>
+                <>
+                  <View className="flex-row items-start justify-between gap-3">
+                    <View className="flex-1">
+                      <AppText className="!text-[22px]" variant="heading">
+                        {activeTaskDef.name}
+                      </AppText>
                     <View className="mt-2 flex-row flex-wrap items-center gap-x-4 gap-y-1">
                       <AppText className="text-xl !text-blue-600 dark:!text-blue-400" variant="body">
                         Repetitions: {activeTaskState.repetitions ?? 0}
@@ -1428,73 +1573,48 @@ export function RestrictedMockTestScreen({ navigation, route }: Props) {
                         Faults: {previewFaults}
                       </AppText>
                     </View>
-                  </View>
 
-                  <View className="items-end gap-2">
                     <AppButton
                       width="auto"
-                      variant="primary"
-                      className="bg-green-600 border-green-600 dark:bg-green-500 dark:border-green-500"
-                      label="Record Repetition"
-                      icon={Save}
-                      onPress={() => {
-                        if (openTaskSuggestions) setOpenTaskSuggestions(null);
-                        const stageId = activeTask.stageId;
-                        const taskId = activeTask.taskId;
-                        const taskName = activeTaskDef.name;
-                        const nextCount = (activeTaskState.repetitions ?? 0) + 1;
-                        Alert.alert(
-                          "Record repetition?",
-                          `Save repetition #${nextCount} for "${taskName}"?`,
-                          [
-                            { text: "Cancel", style: "cancel" },
-                            {
-                              text: "Record",
-                              onPress: () => {
-                                Keyboard.dismiss();
-                                setStagesState((prev) =>
-                                  updateTaskState(prev, stageId, taskId, (task) => {
-                                    const nextItems: Record<RestrictedMockTestTaskItemId, number> = {
-                                      ...task.items,
-                                    };
-
-                                    restrictedMockTestTaskItems.forEach((item) => {
-                                      if (taskModalItems[item.id] === "fault") {
-                                        nextItems[item.id] = (nextItems[item.id] ?? 0) + 1;
-                                      }
-                                    });
-
-                                    return {
-                                      ...task,
-                                      repetitions: (task.repetitions ?? 0) + 1,
-                                      items: nextItems,
-                                      repetitionErrors: [
-                                        ...(task.repetitionErrors ?? []),
-                                        {
-                                          criticalErrors: task.criticalErrors ?? "",
-                                          immediateFailureErrors: task.immediateFailureErrors ?? "",
-                                        },
-                                      ],
-                                      criticalErrors: "",
-                                      immediateFailureErrors: "",
-                                    };
-                                  }),
-                                );
-                                const cleared = createEmptyItems();
-                                setTaskModalItems(cleared);
-                                setTaskModalDrafts((drafts) => ({
-                                  ...drafts,
-                                  [taskModalDraftKey(stageId, taskId)]: cleared,
-                                }));
-                                setOpenTaskSuggestions(null);
-                              },
-                            },
-                          ],
-                        );
-                      }}
+                      variant="secondary"
+                      className="mt-3 self-start"
+                      label={
+                        activeTaskRecordedRepetitionCount > 0
+                          ? `View recorded repetitions (${activeTaskRecordedRepetitionCount})`
+                          : "View recorded repetitions"
+                      }
+                      disabled={activeTaskRecordedRepetitionCount === 0}
+                      onPress={() => setRecordedRepetitionsModalVisible(true)}
                     />
                   </View>
-                </View>
+
+                  {activeTaskMedia ? (
+                      <View
+                        className={cn(
+                          "shrink-0 overflow-hidden rounded-2xl border border-border bg-background dark:border-borderDark dark:bg-backgroundDark",
+                          isCompact ? "h-[104px] w-[132px]" : "h-[118px] w-[168px]",
+                        )}
+                      >
+                        <AppImage
+                          source={activeTaskMedia.source}
+                          accessible
+                          accessibilityRole="image"
+                          accessibilityLabel={activeTaskMedia.accessibilityLabel}
+                          resizeMode="contain"
+                          className="h-full w-full"
+                        />
+                      </View>
+                    ) : null}
+                  </View>
+
+                  <AppButton
+                    variant="primary"
+                    className="mt-4 bg-green-600 border-green-600 dark:bg-green-500 dark:border-green-500"
+                    label="Record Repetition"
+                    icon={Save}
+                    onPress={recordActiveTaskRepetition}
+                  />
+                </>
               );
             })()}
 
@@ -1676,6 +1796,72 @@ export function RestrictedMockTestScreen({ navigation, route }: Props) {
             </AppText>
           </AppStack>
         )}
+      </AppBottomSheetModal>
+
+      <AppBottomSheetModal
+        visible={recordedRepetitionsModalVisible}
+        onRequestClose={() => setRecordedRepetitionsModalVisible(false)}
+        onClosed={() => {}}
+        collapsedHeightRatio={0.45}
+      >
+        <View className="gap-4">
+          <View className="flex-row items-start justify-between gap-3">
+            <View className="flex-1">
+              <AppText className="!text-[22px]" variant="heading">
+                Recorded repetitions
+              </AppText>
+              <AppText className="mt-1" variant="caption">
+                {activeTaskDef ? `${activeTaskDef.name} · ${activeTaskRecordedRepetitionCount} recorded` : "—"}
+              </AppText>
+            </View>
+          </View>
+
+          <ScrollView
+            style={{ flexShrink: 1, maxHeight: Math.round(height * 0.55) }}
+            keyboardShouldPersistTaps="handled"
+            showsVerticalScrollIndicator={false}
+            showsHorizontalScrollIndicator={false}
+          >
+            <AppStack gap="md">
+              {activeTaskRecordedRepetitions.map((repetition) => {
+                const hasCritical = Boolean(repetition.criticalErrors.trim());
+                const hasImmediate = Boolean(repetition.immediateFailureErrors.trim());
+                const hasFaults = repetition.faultLabels.length > 0;
+
+                return (
+                  <View
+                    key={`recorded-repetition-${repetition.index + 1}`}
+                    className="gap-2 rounded-xl border border-border bg-background px-3 py-3 dark:border-borderDark dark:bg-backgroundDark"
+                  >
+                    <AppText variant="label">Repetition #{repetition.index + 1}</AppText>
+                    {hasFaults ? (
+                      <AppText variant="body">Fault types: {repetition.faultLabels.join(", ")}</AppText>
+                    ) : null}
+                    {hasCritical ? (
+                      <View className="gap-2">
+                        <AppText variant="label">Critical error(s)</AppText>
+                        {renderCategorizedLines(repetition.criticalErrors.trim())}
+                      </View>
+                    ) : null}
+                    {hasImmediate ? (
+                      <View className="gap-2">
+                        <AppText className="text-red-600 dark:text-red-400" variant="label">
+                          Immediate failure error
+                        </AppText>
+                        {renderCategorizedLines(repetition.immediateFailureErrors.trim())}
+                      </View>
+                    ) : null}
+                    {!hasFaults && !hasCritical && !hasImmediate ? (
+                      <AppText variant="caption">
+                        No faults or critical/immediate errors were recorded for this repetition.
+                      </AppText>
+                    ) : null}
+                  </View>
+                );
+              })}
+            </AppStack>
+          </ScrollView>
+        </View>
       </AppBottomSheetModal>
 
       <Modal

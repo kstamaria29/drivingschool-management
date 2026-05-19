@@ -30,13 +30,13 @@ import { AppCard } from "../../components/AppCard";
 import { AppInput } from "../../components/AppInput";
 import { AppSegmentedControl } from "../../components/AppSegmentedControl";
 import { AppText } from "../../components/AppText";
+import { SavedSnapshotsModal } from "../components/SavedSnapshotsModal";
 import { SnapshotAnnotationModal } from "../components/SnapshotAnnotationModal";
 import { SnapshotPreviewModal, type SnapshotPreview } from "../components/SnapshotPreviewModal";
 import { useCurrentUser } from "../../features/auth/current-user";
 import {
   DEFAULT_DRAW_COLOR,
   DEFAULT_DRAW_WIDTH,
-  DEFAULT_TEXT_SIZE,
   parseSnapshotAnnotation,
   serializeSnapshotAnnotation,
   type SnapshotAnnotationContent,
@@ -100,7 +100,6 @@ const DRAW_COLORS = [
   "#eab308",
 ] as const;
 const DRAW_WIDTH_OPTIONS = [2, 4, 6, 8] as const;
-const SNAPSHOT_TEXT_SIZE_OPTIONS = [12, 16, 20, 24, 28] as const;
 const SNAPSHOT_CAPTURE_SIZE = 1080;
 const SNAPSHOT_CAPTURE_QUALITY = 0.65;
 const TABLET_MIN_WIDTH = 600;
@@ -317,9 +316,6 @@ export function GoogleMapsScreen(_props: Props) {
   const [activeSnapshotRedoPoints, setActiveSnapshotRedoPoints] = useState<SnapshotPoint[]>([]);
   const [snapshotColor, setSnapshotColor] = useState<string>(DEFAULT_DRAW_COLOR);
   const [snapshotLineWidth, setSnapshotLineWidth] = useState<number>(DEFAULT_DRAW_WIDTH);
-  const [snapshotTextDraft, setSnapshotTextDraft] = useState("");
-  const [snapshotTextSize, setSnapshotTextSize] = useState<number>(DEFAULT_TEXT_SIZE);
-  const [snapshotTextPlacementEnabled, setSnapshotTextPlacementEnabled] = useState(false);
   const [snapshotCanvasSize, setSnapshotCanvasSize] = useState<SnapshotCanvasSize>({
     width: 0,
     height: 0,
@@ -327,10 +323,7 @@ export function GoogleMapsScreen(_props: Props) {
   const lastAutoPinRunKeyRef = useRef("");
 
   const [previewSnapshotId, setPreviewSnapshotId] = useState<string | null>(null);
-  const [previewCanvasSize, setPreviewCanvasSize] = useState<SnapshotCanvasSize>({
-    width: 0,
-    height: 0,
-  });
+  const [mainMapSavedSnapshotsVisible, setMainMapSavedSnapshotsVisible] = useState(false);
 
   const studentsById = useMemo(
     () => new Map((studentsQuery.data ?? []).map((student) => [student.id, student])),
@@ -717,9 +710,6 @@ export function GoogleMapsScreen(_props: Props) {
     setActiveSnapshotRedoPoints([]);
     setSnapshotColor(DEFAULT_DRAW_COLOR);
     setSnapshotLineWidth(DEFAULT_DRAW_WIDTH);
-    setSnapshotTextDraft("");
-    setSnapshotTextSize(DEFAULT_TEXT_SIZE);
-    setSnapshotTextPlacementEnabled(false);
     setSnapshotCanvasSize({ width: 0, height: 0 });
   }
 
@@ -752,9 +742,6 @@ export function GoogleMapsScreen(_props: Props) {
       setActiveSnapshotRedoPoints([]);
       setSnapshotColor(DEFAULT_DRAW_COLOR);
       setSnapshotLineWidth(DEFAULT_DRAW_WIDTH);
-      setSnapshotTextDraft("");
-      setSnapshotTextSize(DEFAULT_TEXT_SIZE);
-      setSnapshotTextPlacementEnabled(false);
       setSnapshotCanvasSize({ width: 0, height: 0 });
       setSnapshotEditorVisible(true);
     } catch (error) {
@@ -833,7 +820,6 @@ export function GoogleMapsScreen(_props: Props) {
 
     setActiveSnapshotStroke([]);
     setActiveSnapshotRedoPoints([]);
-    setSnapshotTextPlacementEnabled(false);
   }
 
   async function saveSnapshotAnnotation() {
@@ -856,8 +842,8 @@ export function GoogleMapsScreen(_props: Props) {
           ]
         : draft.strokes;
 
-    if (finalStrokes.length === 0 && draft.texts.length === 0) {
-      Alert.alert("No annotation", "Add at least one stroke or text label before saving.");
+    if (finalStrokes.length === 0) {
+      Alert.alert("No annotation", "Add at least one stroke before saving.");
       return;
     }
 
@@ -982,39 +968,11 @@ export function GoogleMapsScreen(_props: Props) {
             snapshotCanvasSize,
           );
 
-          if (snapshotTextPlacementEnabled) {
-            const label = snapshotTextDraft.trim();
-            if (!label) {
-              Alert.alert("Enter text", "Type text first, then tap the image to place it.");
-              setSnapshotTextPlacementEnabled(false);
-              return;
-            }
-
-            setSnapshotHistory((history) =>
-              pushHistoryState(history, {
-                ...history.present,
-                texts: [
-                  ...history.present.texts,
-                  {
-                    id: createLocalId("snapshot_text"),
-                    text: label,
-                    color: snapshotColor,
-                    size: snapshotTextSize,
-                    x: startPoint.x,
-                    y: startPoint.y,
-                  },
-                ],
-              }),
-            );
-            setSnapshotTextPlacementEnabled(false);
-            return;
-          }
-
           setActiveSnapshotRedoPoints([]);
           setActiveSnapshotStroke([startPoint]);
         },
         onPanResponderMove: (event) => {
-          if (!snapshotEditorVisible || snapshotTextPlacementEnabled) return;
+          if (!snapshotEditorVisible) return;
 
           const nextPoint = normalizeSnapshotPoint(
             event.nativeEvent.locationX,
@@ -1038,9 +996,6 @@ export function GoogleMapsScreen(_props: Props) {
       snapshotColor,
       snapshotEditorVisible,
       snapshotLineWidth,
-      snapshotTextDraft,
-      snapshotTextSize,
-      snapshotTextPlacementEnabled,
     ],
   );
 
@@ -1070,13 +1025,6 @@ export function GoogleMapsScreen(_props: Props) {
 
   function handleSnapshotCanvasLayout(event: LayoutChangeEvent) {
     setSnapshotCanvasSize({
-      width: event.nativeEvent.layout.width,
-      height: event.nativeEvent.layout.height,
-    });
-  }
-
-  function handlePreviewCanvasLayout(event: LayoutChangeEvent) {
-    setPreviewCanvasSize({
       width: event.nativeEvent.layout.width,
       height: event.nativeEvent.layout.height,
     });
@@ -1250,7 +1198,15 @@ export function GoogleMapsScreen(_props: Props) {
   const mapAnnotationsCard = !draftCoordinate && !selectedPin ? (
     <AppCard className="gap-3">
       <View className="flex-row items-start justify-between gap-3 px-1 pt-1">
-        <AppText variant="heading">Main Map Annotations</AppText>
+        <View className="flex-1 gap-2">
+          <AppText variant="heading">Map Annotations</AppText>
+          <AppButton
+            width="auto"
+            variant="secondary"
+            label="Saved Snapshots"
+            onPress={() => setMainMapSavedSnapshotsVisible(true)}
+          />
+        </View>
         <AppButton
           width="auto"
           size="icon"
@@ -1265,33 +1221,6 @@ export function GoogleMapsScreen(_props: Props) {
         />
       </View>
 
-      <AppText variant="caption">Snapshots: {mapLevelSnapshotAnnotations.length}</AppText>
-
-      {mapLevelSnapshotAnnotations.slice(0, 4).map((annotation) => (
-        <View
-          key={annotation.id}
-          className="rounded-xl border border-border bg-background px-3 py-2 dark:border-borderDark dark:bg-backgroundDark"
-        >
-          <View className="flex-row items-center justify-between gap-2">
-            <Pressable
-              accessibilityRole="button"
-              onPress={() => setPreviewSnapshotId(annotation.id)}
-              className="flex-1"
-            >
-              <AppText variant="label">{annotation.title}</AppText>
-              <AppText variant="caption">{dayjs(annotation.createdAt).format("DD MMM YYYY, h:mm A")}</AppText>
-            </Pressable>
-
-            <AppButton
-              width="auto"
-              variant="ghost"
-              label="Delete"
-              onPress={() => confirmDeleteAnnotation(annotation.id, annotation.title)}
-            />
-          </View>
-        </View>
-      ))}
-
       {mapLevelSnapshotAnnotations.length === 0 ? (
         <AppText variant="caption">Tip: Use the camera button to annotate the main map.</AppText>
       ) : null}
@@ -1305,27 +1234,19 @@ export function GoogleMapsScreen(_props: Props) {
       title={snapshotTitle}
       notes={snapshotNotes}
       strokes={snapshotHistory.present.strokes}
-      texts={snapshotHistory.present.texts}
       activeStroke={activeSnapshotStroke}
       activeColor={snapshotColor}
       lineWidth={snapshotLineWidth}
       colorOptions={DRAW_COLORS}
       widthOptions={DRAW_WIDTH_OPTIONS}
-      textDraft={snapshotTextDraft}
-      textSize={snapshotTextSize}
-      textSizeOptions={SNAPSHOT_TEXT_SIZE_OPTIONS}
-      placingText={snapshotTextPlacementEnabled}
       saving={createMapAnnotation.isPending}
       canUndo={snapshotCanUndo}
       canRedo={snapshotCanRedo}
       onClose={closeSnapshotEditor}
       onChangeTitle={setSnapshotTitle}
       onChangeNotes={setSnapshotNotes}
-      onChangeTextDraft={setSnapshotTextDraft}
-      onSelectTextSize={setSnapshotTextSize}
       onSelectColor={setSnapshotColor}
       onSelectWidth={setSnapshotLineWidth}
-      onToggleTextPlacement={() => setSnapshotTextPlacementEnabled((previous) => !previous)}
       onUndo={undoSnapshotAction}
       onRedo={redoSnapshotAction}
       onClear={clearSnapshotDraft}
@@ -1338,9 +1259,20 @@ export function GoogleMapsScreen(_props: Props) {
   const snapshotPreviewModal = (
     <SnapshotPreviewModal
       snapshot={previewSnapshot}
-      canvasSize={previewCanvasSize}
       onClose={() => setPreviewSnapshotId(null)}
-      onCanvasLayout={handlePreviewCanvasLayout}
+    />
+  );
+  const mainMapSavedSnapshotsModal = (
+    <SavedSnapshotsModal
+      visible={mainMapSavedSnapshotsVisible}
+      snapshots={mapLevelSnapshotAnnotations}
+      deleting={deleteMapAnnotation.isPending}
+      onClose={() => setMainMapSavedSnapshotsVisible(false)}
+      onOpenSnapshot={(snapshotId) => {
+        setMainMapSavedSnapshotsVisible(false);
+        setPreviewSnapshotId(snapshotId);
+      }}
+      onDeleteSnapshot={confirmDeleteAnnotation}
     />
   );
   const selectedPinColorModal = (
@@ -1562,6 +1494,7 @@ export function GoogleMapsScreen(_props: Props) {
       </KeyboardAvoidingView>
       {snapshotEditorModal}
       {snapshotPreviewModal}
+      {mainMapSavedSnapshotsModal}
       {selectedPinColorModal}
     </>
   );

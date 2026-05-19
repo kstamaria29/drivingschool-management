@@ -1,5 +1,93 @@
 # PROJECT_LOG.md
 
+- **Date:** 2026-03-31 (Pacific/Auckland)
+- **Task:** Align snapshot modal footer actions
+- **Summary:**
+  - Moved the snapshot modal undo, redo, clear, and save actions onto a single footer row.
+  - Kept the existing button behaviors while tightening the footer layout.
+
+---
+
+- **Date:** 2026-03-31 (Pacific/Auckland)
+- **Task:** Refine map annotations card layout
+- **Summary:**
+  - Moved the `Saved Snapshots` button into the left column under `Map Annotations` beside the camera button.
+  - Removed the extra snapshot count/helper copy from the main Google Maps annotations card.
+
+---
+
+- **Date:** 2026-03-31 (Pacific/Auckland)
+- **Task:** Move main map snapshots into modal
+- **Summary:**
+  - Replaced the inline main-map snapshot list with a `Saved Snapshots` button under `Main Map Annotations`.
+  - Added a saved-snapshots modal so main-map captures can be opened or deleted without crowding the Google Maps screen.
+
+---
+
+- **Date:** 2026-03-31 (Pacific/Auckland)
+- **Task:** Add remaining restricted task images
+- **Summary:**
+  - Mapped the remaining provided Stage 1 and Stage 2 Restricted mock test images into the shared task-media registry.
+  - Left unlisted tasks without images so only the requested task cards show reference diagrams.
+
+---
+
+- **Date:** 2026-03-30 (Pacific/Auckland)
+- **Task:** Fix snapshot preview annotation alignment
+- **Summary:**
+  - Matched the saved snapshot preview canvas to the annotation editor's stored aspect ratio so saved circles stay on the intended map target.
+  - Scaled preview strokes and text overlays with the fitted canvas for a closer visual match to the editor modal.
+
+---
+
+- **Date:** 2026-03-30 (Pacific/Auckland)
+- **Task:** Remove snapshot annotation text tools
+- **Summary:**
+  - Removed the snapshot annotation text label, text size, and place-text controls from the Google Maps snapshot editor modal.
+  - Simplified snapshot saving so new annotations require drawn strokes while older saved text overlays still preview correctly.
+
+---
+
+- **Date:** 2026-03-30 (Pacific/Auckland)
+- **Task:** Reposition repetition viewer button
+- **Summary:**
+  - Moved the `View recorded repetitions` button into the left-side header gap under the repetition/fault stats.
+  - Kept the separate recorded-repetitions modal and left the main `Record Repetition` action on its own row.
+
+---
+
+- **Date:** 2026-03-30 (Pacific/Auckland)
+- **Task:** Simplify repetition viewer
+- **Summary:**
+  - Replaced the inline repetition tabs with a single button in the Restricted task sheet.
+  - Added a dedicated modal that lists all recorded repetitions without crowding the main task form.
+
+---
+
+- **Date:** 2026-03-30 (Pacific/Auckland)
+- **Task:** Add live repetition tabs
+- **Summary:**
+  - Added live repetition tabs to the Restricted task bottom sheet so recorded repetitions can be reviewed during the assessment.
+  - Stored the fault buttons used for each saved repetition and surfaced them alongside the recorded critical/immediate notes.
+
+---
+
+- **Date:** 2026-03-30 (Pacific/Auckland)
+- **Task:** Refine restricted task image layout
+- **Summary:**
+  - Moved the Stage 1 `Right turn giving way` image into the top-right of the task bottom sheet header.
+  - Removed the extra task-reference text/wrapper and shifted `Record Repetition` into its own full-width row below the header.
+
+---
+
+- **Date:** 2026-03-30 (Pacific/Auckland)
+- **Task:** Restricted task reference image
+- **Summary:**
+  - Added a task-media registry for the Restricted mock test and attached the Stage 1 `Right turn giving way` reference image.
+  - Rendered the reference image near the top of the task bottom sheet with tablet-friendly sizing and accessibility copy.
+
+---
+
 - **Date:** 2026-03-21 (Pacific/Auckland)
 - **Task:** Assessment keyboard avoidance
 - **Summary:**
@@ -67,90 +155,3 @@
 - **Task:** Daily digest lesson lookup
 - **Summary:**
   - Fixed `get_lessons_for_local_date` to join through `notification_settings` so daily digests use the same org-scoped lesson selection as upcoming reminders.
-
----
-
-- **Date:** 2026-02-24 (Pacific/Auckland)
-- **Task:** Daily digest reliability
-- **Summary:**
-  - Prevented daily digest push bodies from falling back to "No lessons scheduled today" when the lesson lookup RPC fails.
-  - Avoided inserting digest deliveries on lookup failure so the next cron run can retry.
-
----
-
-- **Date:** 2026-02-23 (Pacific/Auckland)
-- **Task:** Safe area for bottom overlays
-- **Summary:**
-  - Added safe-area bottom padding to the shared bottom sheet modal so content won't sit under the system navigation bar.
-  - Made the licence image gallery modal respect system insets.
-
----
-
-- **Date:** 2026-02-23 (Pacific/Auckland)
-- **Task:** Supabase cron setup docs
-- **Summary:**
-  - Documented enabling `pg_cron` + `pg_net` for scheduled Edge Function delivery.
-  - Added sample SQL for scheduling `notifications-cron` every 5 minutes and verifying runs.
-
----
-
-- **Date:** 2026-02-22 (Pacific/Auckland)
-- **Task:** Navbar hamburger buttons
-- **Summary:**
-  - Updated header button logic so stack root screens show the hamburger menu even when navigation can go back.
-  - Applied this so Students/Lessons/Assessments/Sessions/Google Maps/Settings show the hamburger instead of a back button.
-
----
-
-- **Date:** 2026-02-22 (Pacific/Auckland)
-- **Task:** Modal polish
-- **Summary:**
-  - Updated the submit confirmation modal so "Submit and Email student" uses green text styling (matching "Submit and Generate PDF").
-  - Added a blue Close button with icon to the bottom sheet modal footer (outside the scrollable content).
-
----
-
-- **Date:** 2026-02-22 (Pacific/Auckland)
-- **Task:** Submit and email student
-- **Summary:**
-  - Added a "Submit and Email student" option to the submit confirmation modal for all 3 assessments.
-  - Implemented submit + PDF generation + email sending via the `send-assessment-email` Edge Function.
-
----
-
-- **Date:** 2026-02-22 (Pacific/Auckland)
-- **Task:** Email student button color
-- **Summary:**
-  - Added a green `success` button variant and applied it to "Email student" across all assessment history views.
-
----
-
-- **Date:** 2026-02-22 (Pacific/Auckland)
-- **Task:** Email student for mock tests
-- **Summary:**
-  - Added the "Email student" action to Restricted and Full mock test history detail views.
-  - Disabled Download/Email/Delete actions consistently while emailing.
-
----
-
-- **Date:** 2026-02-22 (Pacific/Auckland)
-- **Task:** Assessment email error messaging
-- **Summary:**
-  - Surfaced Resend error messages in the Edge Function response for easier diagnosis.
-  - Logged provider failures in Supabase Edge Function logs.
-
----
-
-- **Date:** 2026-02-22 (Pacific/Auckland)
-- **Task:** Home buttons + email assessment PDFs
-- **Summary:**
-  - Rearranged Home quick actions into a 3x2 grid (Students/Lessons, Assessments/Sessions, Google Maps bottom-right).
-  - Added an "Email student" action in Assessment History to email PDFs to the student and the organization.
-
----
-
-- **Date:** 2026-02-22 (Pacific/Auckland)
-- **Task:** Organization email setting
-- **Summary:**
-  - Added organization email field + edit screen in Settings.
-  - Displayed the org email in the Organization block and added a "Change organization email" action.
