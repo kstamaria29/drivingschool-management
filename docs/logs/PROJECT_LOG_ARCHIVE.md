@@ -1873,3 +1873,10 @@
 - **Summary:**
   - Prevented daily digest push bodies from falling back to "No lessons scheduled today" when the lesson lookup RPC fails.
   - Avoided inserting digest deliveries on lookup failure so the next cron run can retry.
+
+---
+
+- **Date:** 2026-02-24 (Pacific/Auckland)
+- **Task:** Daily digest lesson lookup
+- **Summary:**
+  - Fixed `get_lessons_for_local_date` to join through `notification_settings` so daily digests use the same org-scoped lesson selection as upcoming reminders.

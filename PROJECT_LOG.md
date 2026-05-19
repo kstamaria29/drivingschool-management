@@ -1,5 +1,13 @@
 # PROJECT_LOG.md
 
+- **Date:** 2026-05-19 (Pacific/Auckland)
+- **Task:** Expo and React Native version review
+- **Summary:**
+  - Checked the repo's current Expo and React Native versions against current stable and prerelease releases.
+  - Identified upgrade considerations for SDK 55 and SDK 56/RN 0.85.
+
+---
+
 - **Date:** 2026-03-31 (Pacific/Auckland)
 - **Task:** Align snapshot modal footer actions
 - **Summary:**
@@ -148,10 +156,3 @@
 - **Task:** Show global AGENTS guide
 - **Summary:**
   - Retrieved the shared global `AGENTS.md` from the Codex home directory so it could be shown directly for reference.
-
----
-
-- **Date:** 2026-02-24 (Pacific/Auckland)
-- **Task:** Daily digest lesson lookup
-- **Summary:**
-  - Fixed `get_lessons_for_local_date` to join through `notification_settings` so daily digests use the same org-scoped lesson selection as upcoming reminders.
