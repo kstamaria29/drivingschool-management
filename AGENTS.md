@@ -74,22 +74,23 @@ For external libraries/APIs, do not rely on memory for signatures that can chang
 At the start of every task:
 
 1. Read `AGENTS.md`.
-2. Read `PROJECT_LOG.md`.
+2. Read `PROJECT_LOG.md` when the task will change project files or when recent history is needed.
 3. Read `docs/logs/INDEX.md`.
 4. Read `docs/logs/PROJECT_LOG_ARCHIVE.md` when history is needed to avoid regressions.
 
 At the end of every task:
 
-1. Update `PROJECT_LOG.md`.
-2. Keep only the latest 20 entries in `PROJECT_LOG.md`.
-3. Move older entries to `docs/logs/PROJECT_LOG_ARCHIVE.md` (preserve chronological order).
-4. Keep logs compact:
+1. Update `PROJECT_LOG.md` only when the task changed project files (code, docs, config, migrations, assets, or other repo-tracked files).
+2. Do not update project logs for read-only research, Q&A, planning with no repo artifact, Git-only branch operations, or status checks.
+3. When updating logs, keep only the latest 20 entries in `PROJECT_LOG.md`.
+4. Move older entries to `docs/logs/PROJECT_LOG_ARCHIVE.md` (preserve chronological order).
+5. Keep logs compact:
    - `PROJECT_LOG.md` and `PROJECT_LOG_ARCHIVE.md` should only contain `Date`, `Task`, and short `Summary`.
    - Do not store `Files changed`, `Commands run`, or `How to verify` in log files.
    - Run `scripts/logs/compact-project-logs.ps1` after edits if log size grows or older entries still use long format.
-5. Suggest one Conventional Commit message in this format:
+6. Suggest one Conventional Commit message in this format:
    - `git commit -m "type: message"`
-6. Provide quick verification steps.
+7. Provide quick verification steps.
 
 ## 7) PROJECT_LOG entry template
 
@@ -103,7 +104,7 @@ At the end of every task:
 
 Every task response must end with:
 
-**PROJECT_LOG.md:** updated (or not updated - explain why)  
+**PROJECT_LOG.md:** updated if project files changed; otherwise not updated
 **Verification:**
 
 - ...

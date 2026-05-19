@@ -1,6 +1,22 @@
 # PROJECT_LOG.md
 
 - **Date:** 2026-05-19 (Pacific/Auckland)
+- **Task:** Upgrade app to Expo SDK 55
+- **Summary:**
+  - Updated Expo, React Native, React, and related native packages to SDK 55-compatible versions.
+  - Cleaned SDK 55 app config by removing retired native flags and adding the sharing config plugin.
+
+---
+
+- **Date:** 2026-05-19 (Pacific/Auckland)
+- **Task:** Plan Expo SDK 55 upgrade
+- **Summary:**
+  - Planned the SDK 55 upgrade sequence with dependency, config, build, and real-device checks.
+  - Identified app-specific test areas across notifications, media upload, PDFs, maps, and auth flows.
+
+---
+
+- **Date:** 2026-05-19 (Pacific/Auckland)
 - **Task:** Align Expo SDK 54 patches
 - **Summary:**
   - Ran Expo's dependency fixer to align SDK 54 package patches.
@@ -141,19 +157,3 @@
 - **Summary:**
   - Changed the student learner-type field to support multiple selections in the form and profile display.
   - Updated pending migration `024` to store learner types as a text array before it is applied to Supabase.
-
----
-
-- **Date:** 2026-03-21 (Pacific/Auckland)
-- **Task:** Fix declaration full name source
-- **Summary:**
-  - Changed the declaration name display to use the student's entered first and last name instead of the logged-in user.
-  - Removed the pending `declaration_full_name` column from migration `024` before it is applied to Supabase.
-
----
-
-- **Date:** 2026-03-21 (Pacific/Auckland)
-- **Task:** Add student learner type + permissions
-- **Summary:**
-  - Added learner type, photo/video release, and declaration fields to the shared New/Edit student flow.
-  - Persisted the new student fields through Supabase and displayed them on the student profile screen.

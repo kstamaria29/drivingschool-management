@@ -1887,3 +1887,19 @@
 - **Task:** Show global AGENTS guide
 - **Summary:**
   - Retrieved the shared global `AGENTS.md` from the Codex home directory so it could be shown directly for reference.
+
+---
+
+- **Date:** 2026-03-21 (Pacific/Auckland)
+- **Task:** Add student learner type + permissions
+- **Summary:**
+  - Added learner type, photo/video release, and declaration fields to the shared New/Edit student flow.
+  - Persisted the new student fields through Supabase and displayed them on the student profile screen.
+
+---
+
+- **Date:** 2026-03-21 (Pacific/Auckland)
+- **Task:** Fix declaration full name source
+- **Summary:**
+  - Changed the declaration name display to use the student's entered first and last name instead of the logged-in user.
+  - Removed the pending `declaration_full_name` column from migration `024` before it is applied to Supabase.
