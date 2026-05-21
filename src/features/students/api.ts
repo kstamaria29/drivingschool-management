@@ -207,6 +207,34 @@ export async function deleteStudent(studentId: string): Promise<void> {
 }
 
 async function removeStudentRelatedHistories(studentId: string) {
+  const { error: deleteMapAnnotationsError } = await supabase
+    .from("map_annotations")
+    .delete()
+    .eq("student_id", studentId);
+
+  if (deleteMapAnnotationsError) throw deleteMapAnnotationsError;
+
+  const { error: deleteMapPinsError } = await supabase
+    .from("map_pins")
+    .delete()
+    .eq("student_id", studentId);
+
+  if (deleteMapPinsError) throw deleteMapPinsError;
+
+  const { error: deleteRemindersError } = await supabase
+    .from("student_reminders")
+    .delete()
+    .eq("student_id", studentId);
+
+  if (deleteRemindersError) throw deleteRemindersError;
+
+  const { error: deleteLessonsError } = await supabase
+    .from("lessons")
+    .delete()
+    .eq("student_id", studentId);
+
+  if (deleteLessonsError) throw deleteLessonsError;
+
   const { error: deleteSessionsError } = await supabase
     .from("student_sessions")
     .delete()

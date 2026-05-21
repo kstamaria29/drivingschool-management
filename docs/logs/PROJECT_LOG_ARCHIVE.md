@@ -1903,3 +1903,11 @@
 - **Summary:**
   - Changed the declaration name display to use the student's entered first and last name instead of the logged-in user.
   - Removed the pending `declaration_full_name` column from migration `024` before it is applied to Supabase.
+
+---
+
+- **Date:** 2026-03-21 (Pacific/Auckland)
+- **Task:** Make learner type multi-select
+- **Summary:**
+  - Changed the student learner-type field to support multiple selections in the form and profile display.
+  - Updated pending migration `024` to store learner types as a text array before it is applied to Supabase.

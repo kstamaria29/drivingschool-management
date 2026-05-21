@@ -511,10 +511,9 @@ export function StudentDetailScreen({ navigation, route }: Props) {
       warningDetails.push("uploaded licence card photos");
     }
 
-    const deleteMessage =
-      warningDetails.length === 0
-        ? "Permanently delete this student? This cannot be undone."
-        : `Permanently delete this student? This cannot be undone.\n\nWarning: This student has ${warningDetails.join(", ")} that will disappear forever. Save or export them first if needed.`;
+    warningDetails.push("any linked lessons, reminders, map pins, and map annotations");
+
+    const deleteMessage = `Permanently delete this student? This cannot be undone.\n\nWarning: This will also delete ${warningDetails.join(", ")}. Save or export anything you need first.`;
 
     Alert.alert("Delete student", deleteMessage, [
       { text: "Cancel", style: "cancel" },

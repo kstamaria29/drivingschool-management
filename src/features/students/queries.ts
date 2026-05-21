@@ -113,7 +113,15 @@ export function useDeleteStudentMutation() {
   return useMutation({
     mutationFn: (studentId: string) => deleteStudent(studentId),
     onSuccess: async (_data, studentId) => {
-      await invalidateStudentListAndDetail(queryClient, studentId);
+      await Promise.all([
+        invalidateStudentListAndDetail(queryClient, studentId),
+        queryClient.invalidateQueries({ queryKey: ["assessments"] }),
+        queryClient.invalidateQueries({ queryKey: ["studentSessions"] }),
+        queryClient.invalidateQueries({ queryKey: ["studentReminders"] }),
+        queryClient.invalidateQueries({ queryKey: ["lessons"] }),
+        queryClient.invalidateQueries({ queryKey: ["map-pins"] }),
+        queryClient.invalidateQueries({ queryKey: ["map-annotations"] }),
+      ]);
     },
   });
 }

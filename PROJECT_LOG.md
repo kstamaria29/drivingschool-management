@@ -1,5 +1,13 @@
 # PROJECT_LOG.md
 
+- **Date:** 2026-05-22 (Pacific/Auckland)
+- **Task:** Cascade student deletion
+- **Summary:**
+  - Deleted lessons, reminders, map records, session histories, assessment histories, and licence files when a student is permanently deleted.
+  - Added a migration and verification script so student-linked records cascade instead of blocking deletion.
+
+---
+
 - **Date:** 2026-05-19 (Pacific/Auckland)
 - **Task:** Upgrade app to Expo SDK 55
 - **Summary:**
@@ -151,9 +159,3 @@
   - Hid the permission/declaration blocks on student profile pages unless the student was created with the new declaration flow.
 
 ---
-
-- **Date:** 2026-03-21 (Pacific/Auckland)
-- **Task:** Make learner type multi-select
-- **Summary:**
-  - Changed the student learner-type field to support multiple selections in the form and profile display.
-  - Updated pending migration `024` to store learner types as a text array before it is applied to Supabase.
